@@ -363,7 +363,6 @@ void TIM2_IRQHandler (void)
 		{
 			// 不再监视后线圈,接触防砸逻辑
 			system_flag &= ~CAR_WATCHING;
-			//watching_car_passing = FALSE;
 		}
 	}
 

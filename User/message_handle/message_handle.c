@@ -69,10 +69,10 @@ void message_pack(uint8_t uart_no, uint8_t msg_type,PROTOCOL_BUF *buf)
 		break;
 
 	case FEE_G_MSG:
-		pbuf[0] = MSG_SOF	;
-		pbuf[1] = 'Y';			// YY 费显灯为绿色
-		pbuf[2] = MSG_EOF;
-		pbuf[3] = 'Y';
+		pbuf[len++] = MSG_SOF	;
+		pbuf[len++] = 'Y';			// YY 费显灯为绿色
+		pbuf[len++] = MSG_EOF;
+		pbuf[len++] = 'Y';
 		//pbuf[4] = '\0';
 		bLastLaneRedGreenOperateState = GREEN;
 		break;
@@ -242,10 +242,104 @@ void message_pack(uint8_t uart_no, uint8_t msg_type,PROTOCOL_BUF *buf)
 		break;
 #endif
 
+#ifdef DEBUG_MODE
+	case A_MSG:
+		pbuf[len++] = MSG_SOF	;
+		pbuf[len++] = 'A';
+		pbuf[len++] = LOCAL_ADD;
+		pbuf[len++] = device_status_used.status_word[USED];
+		
+		pbuf[len++] = '5';
+		pbuf[len++] = '5';
+		pbuf[len++] = '0';
+		pbuf[len++] = '0';		//pbuf[3~6] , 费额
+		
+		pbuf[len++] = '0';
+		pbuf[len++] = '0';
+		pbuf[len++] = '3';
+		pbuf[len++] = '3';		// pbuf[7~10] , 余额
+		
+		pbuf[len++] = '4';
+		pbuf[len++] = '4';
+		pbuf[len++] = '4';
+		pbuf[len++] = '4';
+		pbuf[len++] = '4';
+		pbuf[len++] = '4';		//pbuf[11~16] , entrance
+
+		pbuf[len++] = 1;
+		pbuf[len++] = 2;
+			
+		pbuf[len++] = device_status_used.status_word[BACKUP];
+
+		pbuf[len++] = '0';
+		
+		pbuf[len++] = MSG_EOF;
+		
+		xor_t = pbuf[1];			// 'A'
+		for (i = 2; i < len-1; i++)	// MSG_SOF和EOF不参与异或
+		{
+			xor_t = xor_t^pbuf[i];	//异或校验
+		}
+		pbuf[len++] = xor_t;
+		break;
+
+	case CR_MSG:
+	case CV_MSG:
+	case CD_MSG:
+		pbuf[len++] = MSG_SOF	;
+		pbuf[len++] = 'C';
+		pbuf[len++] = LOCAL_ADD;
+		if (msg_type == CR_MSG)
+		{
+			pbuf[len++] = 'R';
+		} 
+		else if (msg_type == CV_MSG)
+		{
+			pbuf[len++] = 'V';
+		}
+		else
+		{
+			pbuf[len++] = 'D';
+		}
+		
+		pbuf[len++] = '5';
+		pbuf[len++] = '5';
+		pbuf[len++] = '0';
+		pbuf[len++] = '0';		//pbuf[3~6] , 费额
+		
+		pbuf[len++] = '0';
+		pbuf[len++] = '0';
+		pbuf[len++] = '3';
+		pbuf[len++] = '3';		// pbuf[7~10] , 余额
+		
+		pbuf[len++] = '4';
+		pbuf[len++] = '4';
+		pbuf[len++] = '4';
+		pbuf[len++] = '4';
+		pbuf[len++] = '4';
+		pbuf[len++] = '4';		//pbuf[11~16] , entrance
+
+		pbuf[len++] = '0';
+		pbuf[len++] = '0';
+		pbuf[len++] = '0';
+		pbuf[len++] = '0';
+		
+		pbuf[len++] = MSG_EOF;
+		
+		xor_t = pbuf[1];			// 'C'
+		for (i = 2; i < len-1; i++)	// MSG_SOF和EOF不参与异或
+		{
+			xor_t = xor_t^pbuf[i];	//异或校验
+		}
+		pbuf[len++] = xor_t;
+		break;
+#endif
+
 	default:
 		break;
 	}
 	/*更新发送长度*/
+	pbuf[len++] = '\0';
 	buf->TxLen = len;
 }
  
@@ -317,7 +411,7 @@ static uint8_t message_check(PROTOCOL_BUF *buf)
 	}
 	else
 	{
-		if((rx_buf[0] == MSG_SOF) && (rx_buf[22] == MSG_EOF))
+		if((rx_buf[BSOF] == MSG_SOF) && (rx_buf[BEOF] == MSG_EOF))
 		{
 			j=rx_buf[COM_T];	// J用来计算异或值
 			for(i=2; i <= (rx_len-3); i++)
@@ -508,8 +602,10 @@ void Comm_Proc(void)
 		}
 		Delay_Ms(5);				// 稍微有点延时,可以不要
 		UART0Buf.RecFlag = 0;		//接收数据已处理，清除相关标志
+
+		/*放在括号内,只有收到新的信息才操作*/
+		params_modify_deal();		//后续的数据改变处理
 	}
-	params_modify_deal();		//后续的数据改变处理
 }
 
 

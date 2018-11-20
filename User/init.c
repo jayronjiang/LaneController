@@ -73,7 +73,8 @@ void system_auto_detect(void)
 	DelayAndFeedDog(1200);		// Delay 1.2s
 
 	/* 表明继电器安装了,可以继续检查*/
-	if(GPIO_ReadInputDataBit(device_status_queue[dev_status].gpio_grp,device_status_queue[dev_status].gpio_pin) == KEY_ON )
+	//if(GPIO_ReadInputDataBit(device_status_queue[dev_status].gpio_grp,device_status_queue[dev_status].gpio_pin) == KEY_ON )
+	if(GPIO_ReadInputDataBit(device_status_queue[dev_status].gpio_grp,device_status_queue[dev_status].gpio_pin) == KEY_OFF )
 	{
 		DeviceX_Deactivate(dev_ctrl);	// Output a Low-signal.
 		DelayAndFeedDog(1200);		// Delay 1.2s
@@ -94,6 +95,12 @@ void system_auto_detect(void)
 		{
 			device_detect(dev_status);
 		}
+
+		message_pack_printf(FEE_UART, INTT_MSG);
+		LED_Flashing(LED_COM, 1500, 4);		// flashing for 4times, 1.5s once.
+		message_pack_printf(FEE_UART, FEE_G_MSG);
+		DelayAndFeedDog(3000);	// delay 3s
+		message_pack_printf(FEE_UART, FEE_R_MSG);
 	}
 	/* 否则，外设没有安装好, 跳过检查部分*/
 	else	
@@ -126,19 +133,24 @@ void Param_Init(void)
 	Device_Ctrl_Queue_Init();
 	Device_Stat_Queue_Init();
 	
-	if(PowerOnFlag!=(char)0xAA)
+	if(PowerOnFlag != (uint8_t)0xAA)
 	{
-		PowerOnFlag=(char)0xAA;
+		PowerOnFlag = (uint8_t)0xAA;
 		system_auto_detect();
-
-		message_pack_printf(FEE_UART, INTT_MSG);
-		LED_Flashing(LED_COM, 1500, 4);		// flashing for 4times, 1.5s once.
-		message_pack_printf(FEE_UART, FEE_G_MSG);
-		DelayAndFeedDog(3000);	// delay 3s
-		message_pack_printf(FEE_UART, FEE_R_MSG);
+	#ifdef DEBUG_MODE
+		message_pack_printf(PC_UART, A_MSG);
+		Delay_Ms(10);
+		message_pack_printf(PC_UART, CR_MSG);
+		Delay_Ms(10);
+		message_pack_printf(PC_UART, CV_MSG);
+		Delay_Ms(10);
+		message_pack_printf(PC_UART, CD_MSG);
+	#endif
 	}
-	//else		// Jerry
-		//PrintVerInfo();		//poweron info, used for debugging
+	else	
+	{
+		message_pack_printf(PC_UART,VER_PRINT_MSG);	//poweron info, used for debugging
+	}
 
 	for (i_ctrl = BAR_UP;  i_ctrl < DEV_CTRL_NUM; i_ctrl++)
 	{

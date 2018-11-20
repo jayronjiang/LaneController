@@ -20,6 +20,10 @@ void Task_Schedule(void)
 	if (system_flag&SYS_CHANGED)
 	{
 		system_flag &= ~SYS_CHANGED;
+		if (Status_Get(ALG) == 0)	// 如果是降杠状态,则取消监视
+		{
+			system_flag &= ~CAR_WATCHING;
+		}
 		/* 先看看是否有动作异常*/
 		detect_ALG_TTL_working();
 		/*通知上位机有变位*/
@@ -28,14 +32,13 @@ void Task_Schedule(void)
 		if(Status_Get(BACK_COIL) == 0)	 	/* 如果本次检测到有车*/
 		{
 			/*保存到上次状态*/
-			dete_bit_recd=1;
+			dete_bit_recd = TRUE;
 		}
 	}
 
 /*******************防砸功能逻辑************************************************/
 	/* 降杠过程中发现后线圈有车, 抬杠,并再次进入自动降杠过程*/
 	if (system_flag&CAR_WATCHING)
-	//if(watching_car_passing)
 	{
 		/*后线圈有车*/
 		if(Status_Get(BACK_COIL) == 0)	
@@ -66,11 +69,10 @@ void Task_Schedule(void)
 				device_control_used.control_bits.Lane_lamp_bit = 0;		/*亮红灯*/
 				control_device();
 				system_flag |= CAR_WATCHING;
-				//watching_car_passing = TRUE; 
 			}
 		}
 	}
-/*******************防砸功能逻辑************************************************/
+/*******************防砸功能逻辑结束********************************************/
 
 	/*现场有人按警报,报警10s,一直按就会一直响*/
 	if(Status_Get(ALARM) == 0)		//valid is 0

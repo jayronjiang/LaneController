@@ -30,6 +30,11 @@
 #define ALL8_MSG				0x10		// 显示全8，拷机测试
 #define VOXPLAY_MSG			0x11		// 拷机测试播放测试声音
 
+#define A_MSG				98		// 模拟A信息测试
+#define CR_MSG				97		// 模拟C信息测试
+#define CV_MSG				96		// 模拟C信息测试
+#define CD_MSG				95		// 模拟C信息测试
+
 #define TEST_MSG				99		// 测试功能
 
 #define LOCAL_ADD			('1')		//0x31

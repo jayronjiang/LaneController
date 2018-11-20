@@ -41,7 +41,7 @@ bool dete_bit_recd = FALSE;		// 这个是保存BACK_COIL的上次状态
 
 bool bFeeCleared = FALSE;
 
-uint16_t WatchingDelayCount=0;	// 防砸监视时间
+uint16_t WatchingDelayCount = 0;	// 防砸监视时间
 uint16_t detect_time_counter = AUTO_DETCET_TIME;	//系统参数检查间隔时间
 uint16_t alarm_time_counter = 0;
 
@@ -674,24 +674,24 @@ void ClearFEEdisplay(void)
 	}
 
 	//FeedDog();
-	bFeeCleared=1;
+	bFeeCleared = TRUE;
 	if(bLastLaneRedGreenOperateState == GREEN)
 	{
 		if(device_control_used.control_bits.bFeeDispSelection ==0)
 		{
 			//对于陕西版本的费显，只要开绿灯不清除费额
-			message_pack_printf(PC_UART, FEE_G_MSG);
+			message_pack_printf(FEE_UART, FEE_G_MSG);
 		}
 		else
 		{
 			//对于广东版本的费显，只要开绿灯或红灯都清除费额
-			message_pack_printf(PC_UART, FEE_R_MSG);
+			message_pack_printf(FEE_UART, FEE_R_MSG);
 		}
 	}
 	else
 	{
 		//不管是哪个版本的费显，只要开红灯都清除费额
-		message_pack_printf(PC_UART, FEE_R_MSG);
+		message_pack_printf(FEE_UART, FEE_R_MSG);
 	}
 }
 
@@ -735,17 +735,17 @@ void params_modify_deal(void)
 	//扬声器操作
 	if(device_control_used.control_bits.SPEAK_control_bit == 1)
 	{
-		// 必须是栏杆没有被控制
+		/* 必须是栏杆没有被控制*/
 		if((Command_Get(BAR_UP) == 0)&&(Command_Get(BAR_DOWN) == 0))
 		{
 			message_pack_printf(FEE_UART, SPK_MSG);	// 扬声器输出
 		}
 
-		// 如果是抬杠命令, 和费显绿灯一样的语音
-		// 但是要注意串口的选择
+		/* 如果是抬杠命令, 和费显绿灯一样的语音*/
+		/* 但是要注意串口的选择*/
 		if(Command_Get(BAR_UP))
 		{
-			message_pack_printf(PC_UART, FEE_G_MSG);
+			message_pack_printf(FEE_UART, FEE_G_MSG);
 		}
 	}
 	//该处延时约等于if内的时间，保证连续对费显的操作的间隔时间
@@ -760,7 +760,7 @@ void params_modify_deal(void)
 		// 费额需要显示
 		if(device_control_used.control_bits.FEE_display_bit == 1)
 		{
-			message_pack_printf(PC_UART, COST_MSG);
+			message_pack_printf(FEE_UART, COST_MSG);
 		}
 		else
 		{
