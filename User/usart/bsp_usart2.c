@@ -88,7 +88,7 @@ void USART2_Init(void)
 }
 
 
-/// 重定向c库函数printf到USART1
+/// 重定向c库函数printf到USART2
 int fputc(int ch, FILE *f)
 {
 		/* 发送一个字节数据到USART1 */

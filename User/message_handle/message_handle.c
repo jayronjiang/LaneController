@@ -65,7 +65,6 @@ void message_pack(uint8_t uart_no, uint8_t msg_type,PROTOCOL_BUF *buf)
 
 		pbuf[len++] = MSG_EOF;
 		pbuf[len++] = 0;		// BCC, 发给外设的以0结尾
-		//pbuf[len++] = '\0';
 		break;
 
 	case FEE_G_MSG:
@@ -339,7 +338,7 @@ void message_pack(uint8_t uart_no, uint8_t msg_type,PROTOCOL_BUF *buf)
 		break;
 	}
 	/*更新发送长度*/
-	pbuf[len++] = '\0';
+	//pbuf[len++] = '\0';
 	buf->TxLen = len;
 }
  
@@ -347,6 +346,8 @@ void message_pack(uint8_t uart_no, uint8_t msg_type,PROTOCOL_BUF *buf)
 // 在中断未开的情况下，只能用printf 进行发送
 void message_send_printf(uint8_t uartNo)
 {
+	uint16_t i = 0;
+	uint8_t ch = 0;
 	PROTOCOL_BUF *pProbuf;
 
 	if (uartNo == UART1_COM)
@@ -357,17 +358,28 @@ void message_send_printf(uint8_t uartNo)
 	{
 		;
 	}
-	
-	//message_pack(uartNo, msg_type, pProbuf);
 
-	//开始输出
-	printf("%s", pProbuf->pTxBuf);
+	/*和printf一样,是阻塞型的发送*/
+	for (i = 0; i < pProbuf->TxLen; i++)
+	{
+		ch = pProbuf->pTxBuf[i];
+		USART_SendData(USART2, ch);
+		/* 等待发送完毕 */
+		while (USART_GetFlagStatus(USART2, USART_FLAG_TXE) == RESET);	
+		
+	}
+	pProbuf->TxLen = 0;
+	/*printf无法输出状态量0*/
+	//printf("%s", pProbuf->pTxBuf);
 }
 
 
 //打包同时输出
 void message_pack_printf(uint8_t uartNo, uint8_t msg_type)
 {
+	uint16_t i = 0;
+	uint8_t ch = 0;
+	
 	PROTOCOL_BUF *pProbuf;
 
 	if (uartNo == UART1_COM)
@@ -380,7 +392,19 @@ void message_pack_printf(uint8_t uartNo, uint8_t msg_type)
 	}
 	
 	message_pack(uartNo, msg_type, pProbuf);
-	printf("%s", pProbuf->pTxBuf);
+
+	/*和printf一样,是阻塞型的发送*/
+	for (i = 0; i < pProbuf->TxLen; i++)
+	{
+		ch = pProbuf->pTxBuf[i];
+		USART_SendData(USART2, ch);
+		/* 等待发送完毕 */
+		while (USART_GetFlagStatus(USART2, USART_FLAG_TXE) == RESET);	
+		
+	}
+	pProbuf->TxLen = 0;
+	/*printf无法输出状态量0*/
+	//printf("%s", pProbuf->pTxBuf);
 }
 
 
