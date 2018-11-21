@@ -8,9 +8,6 @@
   
 #include "include.h"
 
-/*UART数据缓冲区*/
- UART_BUF	 UART0Buf;
-
  /**
   * @brief  USART2 GPIO 配置,工作模式配置。115200 8-N-1
   * @param  无
@@ -65,19 +62,19 @@ void NVIC_USART2_Configuration(void)
 	/* Enable the USARTy Interrupt */
 	NVIC_InitStructure.NVIC_IRQChannel = USART2_IRQn;	 
 	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
-	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 2;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
 }
 
-void Param_USART2_Init(void)
+static void Param_USART2_Init(void)
 {
 	/*初始化物理层缓冲区数据*/
-	UART0Buf.RxLen = 0;
-	UART0Buf.TxLen = 0;
-	UART0Buf.TxPoint= 0;
-	UART0Buf.RecFlag= 0;
-	UART0Buf.Timer =0;
+	UARTBuf[UART2_COM].RxLen = 0;
+	UARTBuf[UART2_COM].TxLen = 0;
+	UARTBuf[UART2_COM].TxPoint= 0;
+	UARTBuf[UART2_COM].RecFlag= 0;
+	UARTBuf[UART2_COM].Timer =0;
 }
 
 
@@ -87,59 +84,25 @@ void USART2_Init(void)
 	Param_USART2_Init();
 }
 
-
-/// 重定向c库函数printf到USART2
-int fputc(int ch, FILE *f)
-{
-		/* 发送一个字节数据到USART1 */
-		USART_SendData(USART2, (uint8_t) ch);
-		
-		/* 等待发送完毕 */
-		while (USART_GetFlagStatus(USART2, USART_FLAG_TXE) == RESET);		
-	
-		return (ch);
-}
-
-/// 重定向c库函数scanf到USART1
-int fgetc(FILE *f)
-{
-		/* 等待串口1输入数据 */
-		while (USART_GetFlagStatus(USART2, USART_FLAG_RXNE) == RESET);
-
-		return (int)USART_ReceiveData(USART2);
-}
-
-
 void USART2_IRQHandler(void)
 {
 	uint8_t ch;
 	
 	if(USART_GetITStatus(USART2, USART_IT_RXNE) != RESET)
-	{ 	
-//	    //ch = USART1->DR;
-//			ch = USART_ReceiveData(USART1);
-//	  	printf( "%c", ch );    //将接受到的数据直接返回打印
-		
-//		//我觉得这个地方应该用USART_SendData，在printf不能用时依然有效
-//		USART_SendData(USART1, (uint8_t) ch);
-		
+	{	
 		ch = USART_ReceiveData(USART2);
 
-		UART0Buf.RxBuf[UART0Buf.RxLen] = ch ;
-		if(UART0Buf.RxLen < UART_RXBUF_SIZE)
+		UARTBuf[UART2_COM].RxBuf[UARTBuf[UART2_COM].RxLen] = ch ;
+		if(UARTBuf[UART2_COM].RxLen < UART_RXBUF_SIZE)
 		{
-			UART0Buf.RxLen++;
+			UARTBuf[UART2_COM].RxLen++;
 			/*需要根据波特率添加延时，判断串口通信一帧数据是否结束*/
 			//UART0Buf.Timer = 50;		// 如果50ms还没有数据,本次数据帧结束
 		}
-		//Receive_Handle(ch);
-		#ifndef DEBUG_MODE
-	  		printf("%c",ch);    //将接受到的数据直接返回打印
-	  	#endif
 	} 
 	else if (USART_GetITStatus(USART2, USART_IT_IDLE) != RESET)	// 直接使用空闲帧中断
 	{
-		UART0Buf.RecFlag = TRUE;
+		UARTBuf[UART2_COM].RecFlag = TRUE;
 		/* 需要读这2个寄存器清除中断标志*/
 		/*USART_GetITStatus 函数已经读了SR寄存器*/
 		//ch = USART2->SR;
@@ -147,38 +110,6 @@ void USART2_IRQHandler(void)
 		ch = USART_ReceiveData(USART2);;
 	}
 	
-}
-
-/******************************************************************************
- * 函数名:	UARTProcessTickEvents 
- * 描述: 
- *            -判断串口通信一帧数据是否结束。
- 		  本函数由1ms定时中断每毫秒调用一次,当超过UART0Buf.Timer时间无数据
- 		  timer自减为0,表明数据帧接收完毕；
- * 输入参数: 
- * 输出参数: 
- * 返回值: 
- * 
- *------------------------
- * 修改人:Jerry
- * 修改日期:2013.03.12
- ******************************************************************************/
-void UARTProcessTickEvents(void)
-{
-	if( UART0Buf.Timer > 0 )
-	{
-		UART0Buf.Timer--;
-		if( UART0Buf.Timer == 0 )
-		{
-			UART0Buf.RecFlag = 1;
-		}
-	}
-}
-
-void printf_test(void)
-{
-	printf("\r\n 这是一个串口中断接收回显实验 \r\n");	
-	printf("\r\n 请在超级终端或者串口调试助手输入字符 \r\n");	
 }
 /*********************************************END OF FILE**********************/
 

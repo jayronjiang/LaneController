@@ -11,7 +11,7 @@
 const uint8_t VerInfo[]="LC-301-V4.1-181017";
 
 /*定义通信缓冲区*/
-PROTOCOL_BUF	ProtocolBuf0;
+PROTOCOL_BUF	ProtocolBuf[UART_NUM];
 static uint8_t SpkBuf[COMM_LENTH];	// 用来存储上面发来的信息，主要是用于语音报价
 
  /**
@@ -22,12 +22,23 @@ static uint8_t SpkBuf[COMM_LENTH];	// 用来存储上面发来的信息，主要是用于语音报价
 void Comm1_Init(void)
 {
 	// 物理层初始化
+	USART1_Init();
+	/*初始化协议层缓冲区数据*/
+	ProtocolBuf[UART1_COM].pTxBuf = UARTBuf[UART1_COM].TxBuf;
+	ProtocolBuf[UART1_COM].pRxBuf = UARTBuf[UART1_COM].RxBuf;
+	ProtocolBuf[UART1_COM].RxLen = 0;
+	ProtocolBuf[UART1_COM].TxLen = 0;
+}
+
+ void Comm2_Init(void)
+{
+	// 物理层初始化
 	USART2_Init();
 	/*初始化协议层缓冲区数据*/
-	ProtocolBuf0.pTxBuf = UART0Buf.TxBuf;
-	ProtocolBuf0.pRxBuf = UART0Buf.RxBuf;
-	ProtocolBuf0.RxLen = 0;
-	ProtocolBuf0.TxLen = 0;
+	ProtocolBuf[UART2_COM].pTxBuf = UARTBuf[UART2_COM].TxBuf;
+	ProtocolBuf[UART2_COM].pRxBuf = UARTBuf[UART2_COM].RxBuf;
+	ProtocolBuf[UART2_COM].RxLen = 0;
+	ProtocolBuf[UART2_COM].TxLen = 0;
 }
 
 // 信息打包
@@ -344,28 +355,35 @@ void message_pack(uint8_t uart_no, uint8_t msg_type,PROTOCOL_BUF *buf)
  
 
 // 在中断未开的情况下，只能用printf 进行发送
-void message_send_printf(uint8_t uartNo)
+void message_send_printf(USART_LIST uartNo)
 {
 	uint16_t i = 0;
 	uint8_t ch = 0;
 	PROTOCOL_BUF *pProbuf;
+	USART_TypeDef *PUSART = USART1;
+
+	pProbuf  = &ProtocolBuf[uartNo];
 
 	if (uartNo == UART1_COM)
 	{
-		pProbuf  = &ProtocolBuf0;
+		PUSART = USART1;
+	}
+	else if (uartNo == UART2_COM)
+	{
+		PUSART = USART2;
 	}
 	else
 	{
-		;
+		PUSART = USART3;
 	}
 
 	/*和printf一样,是阻塞型的发送*/
 	for (i = 0; i < pProbuf->TxLen; i++)
 	{
 		ch = pProbuf->pTxBuf[i];
-		USART_SendData(USART2, ch);
+		USART_SendData(PUSART, ch);
 		/* 等待发送完毕 */
-		while (USART_GetFlagStatus(USART2, USART_FLAG_TXE) == RESET);	
+		while (USART_GetFlagStatus(PUSART, USART_FLAG_TXE) == RESET);	
 		
 	}
 	pProbuf->TxLen = 0;
@@ -379,16 +397,22 @@ void message_pack_printf(uint8_t uartNo, uint8_t msg_type)
 {
 	uint16_t i = 0;
 	uint8_t ch = 0;
-	
 	PROTOCOL_BUF *pProbuf;
+	USART_TypeDef *PUSART = USART1;
+
+	pProbuf  = &ProtocolBuf[uartNo];
 
 	if (uartNo == UART1_COM)
 	{
-		pProbuf  = &ProtocolBuf0;
+		PUSART = USART1;
+	}
+	else if (uartNo == UART2_COM)
+	{
+		PUSART = USART2;
 	}
 	else
 	{
-		;
+		PUSART = USART3;
 	}
 	
 	message_pack(uartNo, msg_type, pProbuf);
@@ -397,9 +421,9 @@ void message_pack_printf(uint8_t uartNo, uint8_t msg_type)
 	for (i = 0; i < pProbuf->TxLen; i++)
 	{
 		ch = pProbuf->pTxBuf[i];
-		USART_SendData(USART2, ch);
+		USART_SendData(PUSART, ch);
 		/* 等待发送完毕 */
-		while (USART_GetFlagStatus(USART2, USART_FLAG_TXE) == RESET);	
+		while (USART_GetFlagStatus(PUSART, USART_FLAG_TXE) == RESET);	
 		
 	}
 	pProbuf->TxLen = 0;
@@ -600,38 +624,36 @@ static void message_process(PROTOCOL_BUF *buf)
  ***********************************************************************************/
 void Comm_Proc(void)
 {
-	
-	if (UART0Buf.RecFlag)		                      //RS485口有数据
+	USART_LIST USARTX = PC_UART;
+
+	if (UARTBuf[USARTX].RecFlag)		                      //RS485口有数据
 	{	
 		#ifdef DEBUG_MODE
-	  		printf("%s",UART0Buf.RxBuf);    //将接受到的数据直接返回打印
+	  		printf("%s",UARTBuf[USARTX].RxBuf);    //将接受到的数据直接返回打印
 	  	#endif
 		
-		ProtocolBuf0.pTxBuf = UART0Buf.TxBuf;         //地址置换
-		ProtocolBuf0.pRxBuf = UART0Buf.RxBuf;
-		ProtocolBuf0.RxLen = UART0Buf.RxLen;
-		ProtocolBuf0.TxLen = 0;
-		UART0Buf.RxLen = 0;		//已经被读取到ProtocolBuf0.RxLen, 尽快清0
+		ProtocolBuf[USARTX].pTxBuf = UARTBuf[USARTX].TxBuf;         //地址置换
+		ProtocolBuf[USARTX].pRxBuf = UARTBuf[USARTX].RxBuf;
+		ProtocolBuf[USARTX].RxLen = UARTBuf[USARTX].RxLen;
+		ProtocolBuf[USARTX].TxLen = 0;
+		UARTBuf[USARTX].RxLen = 0;		//已经被读取到ProtocolBuf0.RxLen, 尽快清0
 
 		/*直接先进行透传*/
 		//message_pack_printf(TRANS_UART, TRANS_MSG);
 
-		message_process(&ProtocolBuf0);		//通信协议处理
+		message_process(&ProtocolBuf[USARTX]);		//通信协议处理
 
-		UART0Buf.TxLen = ProtocolBuf0.TxLen;  //置换回来，处理物理层数据
-		if(UART0Buf.TxLen >0)
+		UARTBuf[USARTX].TxLen = ProtocolBuf[USARTX].TxLen;  //置换回来，处理物理层数据
+		if(UARTBuf[USARTX].TxLen >0)
 		{
 			/*回复B/C信息给上位机*/
 			message_send_printf(PC_UART);
 		}
 		Delay_Ms(5);				// 稍微有点延时,可以不要
-		UART0Buf.RecFlag = 0;		//接收数据已处理，清除相关标志
+		UARTBuf[USARTX].RecFlag = 0;		//接收数据已处理，清除相关标志
 
 		/*放在括号内,只有收到新的信息才操作*/
 		params_modify_deal();		//后续的数据改变处理
 	}
 }
-
-
-
 /*********************************************END OF FILE**********************/

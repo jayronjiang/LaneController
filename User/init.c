@@ -194,16 +194,15 @@ void Init_System(void)
 	LED_GPIO_Config();
 	EXTI_PE4_Config();
 
-	/*USART1 配置模式为 115200 8-N-1，中断接收*/
-	Comm1_Init();
-	//USART2_Config();
+	Comm1_Init();	// USART1 配置模式为 115200 8-N-1，中断接收
+	Comm2_Init();	// USART2 配置模式为 115200 8-N-1，中断接收
 	
 	/*滴答定时器初始化，1ms中断周期*/
 	/* 这个定时器用于驱动整个循环运行，放在初始化的最后*/
 	/* 也就是硬件初始化完毕后定时器开始运行*/
 	SysTick_Init();	// 本程序不带操作系统,只是一个普通的ms定时器
 
-// 用来测试定时是否准确的语句
+/* 用来测试定时是否准确的语句*/
 #if 0
 	INT_ENABLE();
 	SysTick_start();

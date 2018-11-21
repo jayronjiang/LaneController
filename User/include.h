@@ -13,12 +13,11 @@
 #include "bsp_key.h"
 
 #include "stm32f10x_it.h"
-//#include <stdio.h>
 #include "ext_wdt.h"
 #include "dev_ctrl.h"
 #include "usart_driver.h"
+#include "bsp_usart1.h"
 #include "bsp_usart2.h"
-//#include "bsp_usart1.h"
 #include "message_handle.h"
 #include "test.h"
 

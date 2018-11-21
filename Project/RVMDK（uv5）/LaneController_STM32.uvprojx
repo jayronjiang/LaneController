@@ -612,6 +612,16 @@
               <FileType>1</FileType>
               <FilePath>..\..\User\test.c</FilePath>
             </File>
+            <File>
+              <FileName>usart_driver.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\User\usart_driver.c</FilePath>
+            </File>
+            <File>
+              <FileName>bsp_usart1.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\User\usart\bsp_usart1.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

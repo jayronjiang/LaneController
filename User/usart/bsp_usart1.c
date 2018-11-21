@@ -8,9 +8,6 @@
   
 #include "include.h"
 
-/*UART数据缓冲区*/
- //UART_BUF	 UART0Buf;
-
  /**
   * @brief  USART1 GPIO 配置,工作模式配置。115200 8-N-1
   * @param  无
@@ -47,13 +44,15 @@ void USART1_Config(void)
 	/* 使能串口1接收中断 */
 	// 注意,使用printf 发送不是中断方式发送,不需要打开发送中断
 	USART_ITConfig(USART1, USART_IT_RXNE, ENABLE);
+	/* 使能串口1空闲中断 */
+	USART_ITConfig(USART1, USART_IT_IDLE, ENABLE);
 	
 	USART_Cmd(USART1, ENABLE);
 	
 	//配置串口1对应的中断向量
 	NVIC_USART1_Configuration();
 	
-	printf("USART1初始化完成\n");
+	//printf("USART1初始化完成\n");
 }
 
 /// 配置USART1接收中断
@@ -75,11 +74,11 @@ void NVIC_USART1_Configuration(void)
 void Param_USART1_Init(void)
 {
 	/*初始化物理层缓冲区数据*/
-	UART0Buf.RxLen = 0;
-	UART0Buf.TxLen = 0;
-	UART0Buf.TxPoint= 0;
-	UART0Buf.RecFlag= 0;
-	UART0Buf.Timer =0;
+	UARTBuf[UART1_COM].RxLen = 0;
+	UARTBuf[UART1_COM].TxLen = 0;
+	UARTBuf[UART1_COM].TxPoint= 0;
+	UARTBuf[UART1_COM].RecFlag= 0;
+	UARTBuf[UART1_COM].Timer =0;
 }
 
 
@@ -89,55 +88,30 @@ void USART1_Init(void)
 	Param_USART1_Init();
 }
 
-
-
-/// 重定向c库函数printf到USART1
-int fputc(int ch, FILE *f)
-{
-		/* 发送一个字节数据到USART1 */
-		USART_SendData(USART1, (uint8_t) ch);
-		
-		/* 等待发送完毕 */
-		while (USART_GetFlagStatus(USART1, USART_FLAG_TXE) == RESET);		
-	
-		return (ch);
-}
-
-/// 重定向c库函数scanf到USART1
-int fgetc(FILE *f)
-{
-		/* 等待串口1输入数据 */
-		while (USART_GetFlagStatus(USART1, USART_FLAG_RXNE) == RESET);
-
-		return (int)USART_ReceiveData(USART1);
-}
-
-
 void USART1_IRQHandler(void)
 {
 	uint8_t ch;
 	
 	if(USART_GetITStatus(USART1, USART_IT_RXNE) != RESET)
-	{ 	
-//	    //ch = USART1->DR;
-//			ch = USART_ReceiveData(USART1);
-//	  	printf( "%c", ch );    //将接受到的数据直接返回打印
-		
-//		//我觉得这个地方应该用USART_SendData，在printf不能用时依然有效
-//		USART_SendData(USART1, (uint8_t) ch);
-		
+	{	
 		ch = USART_ReceiveData(USART1);
-		//Receive_Handle(ch);
-		#ifdef DEBUG_MODE
-	  		printf("%c",ch);    //将接受到的数据直接返回打印
-	  	#endif
-	  	
-	} 
-}
 
-void printf_test(void)
-{
-	printf("\r\n 这是一个串口中断接收回显实验 \r\n");	
-	printf("\r\n 请在超级终端或者串口调试助手输入字符 \r\n");	
+		UARTBuf[UART1_COM].RxBuf[UARTBuf[UART1_COM].RxLen] = ch ;
+		if(UARTBuf[UART1_COM].RxLen < UART_RXBUF_SIZE)
+		{
+			UARTBuf[UART1_COM].RxLen++;
+			/*需要根据波特率添加延时，判断串口通信一帧数据是否结束*/
+			//UART0Buf.Timer = 50;		// 如果50ms还没有数据,本次数据帧结束
+		}
+	} 
+	else if (USART_GetITStatus(USART1, USART_IT_IDLE) != RESET)	// 直接使用空闲帧中断
+	{
+		UARTBuf[UART1_COM].RecFlag = TRUE;
+		/* 需要读这2个寄存器清除中断标志*/
+		/*USART_GetITStatus 函数已经读了SR寄存器*/
+		//ch = USART2->SR;
+		/*读DR寄存器清除标志*/
+		ch = USART_ReceiveData(USART1);;
+	}
 }
 /*********************************************END OF FILE**********************/
