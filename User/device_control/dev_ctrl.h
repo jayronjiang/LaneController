@@ -1,11 +1,7 @@
 #ifndef __DEV_CTRL_H
 #define	__DEV_CTRL_H
 
-
-//#define DEVICE_GRP			GPIOA
-//#define DEVICE_RCC_GRP		RCC_APB2Periph_GPIOA
-
-// 位域的数量, 使用2个字节
+/* 位域的数量, 使用2个字节*/
 typedef enum 
 {	
 	USED = 0,
@@ -14,7 +10,7 @@ typedef enum
 	BIT_ARR_NUM
 }BIT_ARR_LIST;
 
-//RTD类型枚举,可扩展
+/*GPIO类型枚举,可扩展*/
 typedef enum 
 {	
 	GPIO_IN = 0,
@@ -25,7 +21,6 @@ typedef enum
 
 
 /*Low level, e.g. if want to up the BAR, set: BAR_UP = 0 */
-
 #define BAR_UP_OUT_GRP			GPIOC
 #define BAR_UP_POUT				GPIO_Pin_0	//栏杆起
 
@@ -58,32 +53,29 @@ typedef enum
 #define LG_IN_GRP				GPIOC
 #define LG_PIN					GPIO_Pin_9	//栏杆落状态反馈
 
-#define ALARM_IN_GRP			GPIOC
-#define ALARM_PIN				GPIO_Pin_10	//
+#define ALARM_IN_GRP				GPIOC
+#define ALARM_PIN				GPIO_Pin_10
 
 #define ALG_IN_GRP				GPIOC
-#define ALG_PIN					GPIO_Pin_11	//
+#define ALG_PIN					GPIO_Pin_11
 
-#define FRONT_IN_GRP			GPIOC
-#define FRONT_PIN				GPIO_Pin_12	//
+#define FRONT_IN_GRP				GPIOC
+#define FRONT_PIN				GPIO_Pin_12
 
-#define BACK_COIN_IN_GRP		GPIOC
-#define BACK_COIN_PIN			GPIO_Pin_13	//
+#define BACK_COIN_IN_GRP			GPIOC
+#define BACK_COIN_PIN			GPIO_Pin_13
 
 #define BAK1_IN_GRP				GPIOC
-#define BAK1_PIN					GPIO_Pin_14	//
+#define BAK1_PIN					GPIO_Pin_14
 
 #define BAK2_IN_GRP				GPIOC
-#define BAK2_PIN					GPIO_Pin_15	//
-
-
+#define BAK2_PIN					GPIO_Pin_15
 
 #define DEVICE_ALL_PIN			(TTL_PIN |LG_PIN |ALARM_PIN |ALG_PIN |FRONT_PIN |BACK_COIN_PIN |BAK1_PIN |BAK2_PIN)
 
-//sbit pinSwtichALG =P0^6;  // 选择开关? 0:降杠, 1: 抬杠
 
-#define GREEN 1
-#define RED 0
+#define GREEN 		1
+#define RED 			0
 
 #define OPT_OK		0
 #define OPT_FAIL		1
@@ -111,7 +103,7 @@ typedef union{
 		uint16_t TTL_work_status:1;		//bit6
 		uint16_t unused7:1;
 	}status_bits;
-	// 必须以数组形式定义,否则连续定义2个变量会放在同一个地址
+	/* 必须以数组形式定义,否则连续定义2个变量会放在同一个地址*/
 	uint8_t status_word[BIT_ARR_NUM];
 }DEVICE_STATUS_BITS;
 
@@ -140,26 +132,26 @@ typedef union{
 	uint8_t control_word[BIT_ARR_NUM];
 }DEVICE_CONTROL_BITS;
 
-typedef struct device_out_struct		/*88个字节*/
+typedef struct device_out_struct
 {
 	GPIO_TypeDef* gpio_grp;
 	uint16_t gpio_pin;
 }DEVICE_CTRL;
 
-typedef struct device_in_struct		/*88个字节*/
+typedef struct device_in_struct
 {
 	GPIO_TypeDef* gpio_grp;
 	uint16_t gpio_pin;
 }DEVICE_STATUS;
 
-//类型枚举,可扩展
+/*设备类型枚举,可扩展*/
 typedef enum 
 {	
 	TTL = 0,
-	LG,			// bit1
-	ALARM,		// bit2
-	ALG,		// bit3
-	FRONT_COIL,	// bit4
+	LG,				// bit1
+	ALARM,			// bit2
+	ALG,				// bit3
+	FRONT_COIL,		// bit4
 	BACK_COIL,		// bit5
 	BAK1,			// bit6
 	BAK2,			// bit7
@@ -167,7 +159,7 @@ typedef enum
 	DEV_STATUS_NUM
 }DEVICE_STATUS_LIST;
 
-//类型枚举,可扩展
+/*类型枚举,可扩展*/
 typedef enum 
 {	
 	BAR_UP = 0,
@@ -189,18 +181,19 @@ extern DEVICE_CONTROL_BITS device_control_used;
 extern DEVICE_CTRL device_ctrl_queue[DEV_CTRL_NUM];
 extern DEVICE_STATUS device_status_queue[DEV_STATUS_NUM];
 
-// 指示现在费显是亮红灯还是绿灯
+/* 指示现在费显是亮红灯还是绿灯*/
 extern uint8_t bLastLaneRedGreenOperateState;
-extern uint16_t WatchingDelayCount;
-extern uint16_t detect_time_counter;	//系统参数检查间隔时间
-extern uint16_t alarm_time_counter;
-
+extern bool LastLaneLampState;
 //extern bool watching_car_passing;		// 后线圈监视
 extern bool autoBarEnable;
 extern bool bFeeCleared;
 extern bool dete_bit_recd;
 extern bool ALG_down_flag_bit;
+extern bool ALG_up_flag_bit;
 
+extern uint16_t WatchingDelayCount;
+extern uint16_t detect_time_counter;		//系统参数检查间隔时间
+extern uint16_t alarm_time_counter;
 
 void RCC_Clock_Set(GPIO_TypeDef* GPIOx, FunctionalState iState);
 void DeviceX_Activate(DEVICE_CTRL_LIST dev);

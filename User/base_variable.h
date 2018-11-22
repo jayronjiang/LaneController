@@ -17,7 +17,7 @@
 #ifndef _BASE_VARIABLE_H
 #define _BASE_VARIABLE_H
 
-#define DEBUG_MODE
+//#define DEBUG_MODE
 
 typedef unsigned char bool;		// 定义bool类型，只使用TRUE和FALSE 2个值
 

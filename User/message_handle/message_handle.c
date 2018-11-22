@@ -14,7 +14,7 @@
 const uint8_t VerInfo[]="LC-301-V4.1-181017";
 
 /*定义通信缓冲区*/
-PROTOCOL_BUF	ProtocolBuf[UART_NUM];
+PROTOCOL_BUF ProtocolBuf[UART_NUM];
 static uint8_t SpkBuf[COMM_LENTH];	// 用来存储上面发来的信息，主要是用于语音报价
 
 
@@ -277,7 +277,7 @@ void message_pack(uint8_t uart_no, uint8_t msg_type,PROTOCOL_BUF *buf)
 	switch (msg_type)
 	{
 	case INTT_MSG:
-		pbuf[len++] = MSG_SOF	;
+		pbuf[len++] = MSG_SOF;
 		pbuf[len++] = '3';		// 车型pbuf[1] 
 		pbuf[len++] = '3';		// 车重pbuf[2] 
 		
@@ -303,7 +303,7 @@ void message_pack(uint8_t uart_no, uint8_t msg_type,PROTOCOL_BUF *buf)
 		break;
 
 	case FEE_G_MSG:
-		pbuf[len++] = MSG_SOF	;
+		pbuf[len++] = MSG_SOF;
 		pbuf[len++] = 'Y';			// YY 费显灯为绿色
 		pbuf[len++] = MSG_EOF;
 		pbuf[len++] = 'Y';
@@ -312,7 +312,7 @@ void message_pack(uint8_t uart_no, uint8_t msg_type,PROTOCOL_BUF *buf)
 		break;
 
 	case FEE_R_MSG:
-		pbuf[len++] = MSG_SOF	;
+		pbuf[len++] = MSG_SOF;
 		pbuf[len++] = 'Z';		// ZZ 费显灯为红色
 		pbuf[len++] = MSG_EOF;
 		pbuf[len++] = 'Z';
@@ -332,12 +332,36 @@ void message_pack(uint8_t uart_no, uint8_t msg_type,PROTOCOL_BUF *buf)
 		pbuf[len++] = 0x0A;
 		break;
 
-	// 暂时没有添加这个功能
+	/*上传一些重要变量的值,便于现场调试*/
 	case MEM_DUMP_MSG:
+		pbuf[len++] = 'X';
+		pbuf[len++] = 'Y';
+		pbuf[len++] = '_';
+		pbuf[len++] = device_control_used.control_word[USED];
+		pbuf[len++] = device_control_used.control_word[BACKUP];
+		pbuf[len++] = device_status_used.status_word[USED];
+		pbuf[len++] = device_status_used.status_word[BACKUP];
+		
+		pbuf[len++] = system_flag;
+		pbuf[len++] = ALG_up_flag_bit;
+		pbuf[len++] = ALG_down_flag_bit;
+		
+		pbuf[len++] = autoBarEnable;
+		pbuf[len++] = dete_bit_recd;
+		pbuf[len++] = LastLaneLampState;
+		pbuf[len++] = bLastLaneRedGreenOperateState;
+		
+		pbuf[len++] = bFeeCleared;
+		pbuf[len++] = WatchingDelayCount;
+		pbuf[len++] = detect_time_counter;
+		pbuf[len++] = alarm_time_counter;
+
+		pbuf[len++] = 0x0D;	// 0D0A, 回车换行
+		pbuf[len++] = 0x0A;
 		break;
 
 	case B_RES_MSG:
-		pbuf[len++] = MSG_SOF	;
+		pbuf[len++] = MSG_SOF;
 		pbuf[len++] = 'B';						// 信息B
 		pbuf[len++] = LOCAL_ADD;				// 地址0x31
 		pbuf[len++] = device_status_used.status_word[USED];
@@ -353,7 +377,7 @@ void message_pack(uint8_t uart_no, uint8_t msg_type,PROTOCOL_BUF *buf)
 		break;
 
 	case ERR_RES_MSG:
-		pbuf[len++] = 0x15	;
+		pbuf[len++] = 0x15;
 		pbuf[len++] = 'E';
 		pbuf[len++] = 'E';
 		pbuf[len++] = 'E';
@@ -406,7 +430,7 @@ void message_pack(uint8_t uart_no, uint8_t msg_type,PROTOCOL_BUF *buf)
 		break;
 
 	case ALL8_MSG:
-		pbuf[len++] = MSG_SOF	;
+		pbuf[len++] = MSG_SOF;
 
 		pbuf[len++] = '8';
 		pbuf[len++] = '8';
@@ -434,7 +458,7 @@ void message_pack(uint8_t uart_no, uint8_t msg_type,PROTOCOL_BUF *buf)
 		break;
 
 	case VOXPLAY_MSG:
-		pbuf[len++] = MSG_SOF	;
+		pbuf[len++] = MSG_SOF;
 
 		pbuf[len++] = '5';
 		pbuf[len++] = '1';
@@ -462,7 +486,7 @@ void message_pack(uint8_t uart_no, uint8_t msg_type,PROTOCOL_BUF *buf)
 		
 #ifdef TEST
 	case TEST_MSG:
-		pbuf[len++] = 0x80	;
+		pbuf[len++] = 0x80;
 		pbuf[len++] = 0x3f;
 		pbuf[len++] = 0x30;
 		pbuf[len++] = 0x5b;
@@ -478,7 +502,7 @@ void message_pack(uint8_t uart_no, uint8_t msg_type,PROTOCOL_BUF *buf)
 
 #ifdef DEBUG_MODE
 	case A_MSG:
-		pbuf[len++] = MSG_SOF	;
+		pbuf[len++] = MSG_SOF;
 		pbuf[len++] = 'A';
 		pbuf[len++] = LOCAL_ADD;
 		pbuf[len++] = device_status_used.status_word[USED];
@@ -520,7 +544,7 @@ void message_pack(uint8_t uart_no, uint8_t msg_type,PROTOCOL_BUF *buf)
 	case CR_MSG:
 	case CV_MSG:
 	case CD_MSG:
-		pbuf[len++] = MSG_SOF	;
+		pbuf[len++] = MSG_SOF;
 		pbuf[len++] = 'C';
 		pbuf[len++] = LOCAL_ADD;
 		if (msg_type == CR_MSG)
