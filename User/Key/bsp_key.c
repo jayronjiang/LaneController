@@ -26,12 +26,11 @@ uint16_t GPIO_ReadInputAll(uint8_t polar)
 		tmp = GPIO_ReadInputDataBit(device_status_queue[dev_status].gpio_grp,
 										device_status_queue[dev_status].gpio_pin);
 
-		tmp = tmp << dev_status;	// 第几个键值向左移几位.
-		if ( polar == LOW_POLAR )
-		{
-			tmp = ~tmp;			// 把低有效全部转为高有效
-		}
-		key_val |= tmp;
+		key_val = tmp << dev_status;	// 第几个键值向左移几位.
+	}
+	if ( polar == LOW_POLAR )
+	{
+		key_val = ~key_val;			// 把低有效全部转为高有效
 	}
 
 	return key_val;

@@ -1,7 +1,12 @@
 #ifndef __TIME_H
 #define	__TIME_H
 
-//extern uint16_t system_flag;
+#define SYS_CHANGED   		BIT0		/* 外部设备检测出现变化,需要向上位机汇报*/
+#define SYS_ERR_CHK			BIT1		/*3s进行一次系统检测*/
+#define CAR_WATCHING		BIT2		/*后线圈开始监视*/
+#define SYSTEM_100MS          	BIT3		/*暂时未使用*/
+
+extern uint16_t system_flag;
 extern volatile uint32_t system_time_ms;
 
 /* 用在20ms中断中,因此1s就是50个计数周期*/
@@ -15,11 +20,6 @@ extern volatile uint32_t system_time_ms;
 void Delay_Xus(uint16_t us);
 void Delay_Xms(uint16_t ms);
 void Delay_Ms(uint32_t myMs);
-	
-//void Delay_Ms(u32 myMs);		//while实现的延时函数，在time.c内作为一种可选择的延时方式，不提供外部接口
-//void Delay_Us(u32 myUs);
-
-//void Delay_us(u32 us);	//用timer实现
 
 void Start_Timer_x(TIM_TypeDef* TIMx);
 void Stop_Timer_x(TIM_TypeDef* TIMx);

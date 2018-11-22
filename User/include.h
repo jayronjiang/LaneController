@@ -7,7 +7,6 @@
 #include "base_variable.h"
 #include "time.h"
 #include "init.h"
-#include "scheduler.h"
 #include "bsp_SysTick.h"
 #include "bsp_led.h"
 #include "bsp_key.h"

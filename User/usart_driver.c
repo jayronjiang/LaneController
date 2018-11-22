@@ -47,7 +47,18 @@ void UARTProcessTickEvents(void)
 }
 
 
-/// 重定向c库函数printf到USARTx
+/******************************************************************************
+ * 函数名:	fputc 
+ * 描述: 
+ *            -重定向c库函数printf到USARTx, 系统自带
+ * 输入参数: 
+ * 输出参数: 
+ * 返回值: 
+ * 
+ *------------------------
+ * 修改人:Jerry
+ * 修改日期:2018.11.21
+ ******************************************************************************/
 int fputc(int ch, FILE *f)
 {
 	USART_TypeDef *pusart=USART1;
@@ -66,7 +77,7 @@ int fputc(int ch, FILE *f)
 	}
 
 
-	/* 发送一个字节数据到USART1 */
+	/* 发送一个字节数据到USARTx */
 	USART_SendData(pusart, (uint8_t) ch);
 		
 	/* 等待发送完毕 */
@@ -76,7 +87,18 @@ int fputc(int ch, FILE *f)
 }
 
 
-/// 重定向c库函数scanf到USART1
+/******************************************************************************
+ * 函数名:	fputc 
+ * 描述: 
+ *            -重定向c库函数scanf到USARTx, 系统自带
+ * 输入参数: 
+ * 输出参数: 
+ * 返回值: 
+ * 
+ *------------------------
+ * 修改人:Jerry
+ * 修改日期:2018.11.21
+ ******************************************************************************/
 int fgetc(FILE *f)
 {
 	USART_TypeDef *pusart=USART1;
@@ -98,12 +120,6 @@ int fgetc(FILE *f)
 	while (USART_GetFlagStatus(pusart, USART_FLAG_RXNE) == RESET);
 
 	return (int)USART_ReceiveData(pusart);
-}
-
-void printf_test(void)
-{
-	printf("\r\n 这是一个串口中断接收回显实验 \r\n");	
-	printf("\r\n 请在超级终端或者串口调试助手输入字符 \r\n");	
 }
 
 /*********************************************END OF FILE**********************/
