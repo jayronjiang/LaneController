@@ -30,7 +30,7 @@ typedef enum
 #define TTL_GREEN_OUT_GRP		GPIOC
 #define TTL_GREEN_POUT			GPIO_Pin_2	// 雨棚灯
 
-#define VOX_ALM_OUT_GRP		GPIOC
+#define VOX_ALM_OUT_GRP			GPIOC
 #define VOX_ALM_POUT			GPIO_Pin_3			// 声音报警器
 
 #define LIGHT_ALM_OUT_GRP		GPIOC
@@ -46,29 +46,29 @@ typedef enum
 #define BAK2_USED_POUT			GPIO_Pin_7			// 备用?
 
 
+/*开发板上不宜使用PC8~PC15*/
+#define TTL_IN_GRP				GPIOE		// PE2, 开发板上的KEY2
+#define TTL_PIN					GPIO_Pin_2	//雨棚灯状态反馈
 
-#define TTL_IN_GRP				GPIOC
-#define TTL_PIN					GPIO_Pin_8	//雨棚灯状态反馈
+#define LG_IN_GRP				GPIOE		// PE2, 开发板上的KEY1
+#define LG_PIN					GPIO_Pin_3	//栏杆落状态反馈
 
-#define LG_IN_GRP				GPIOC
-#define LG_PIN					GPIO_Pin_9	//栏杆落状态反馈
+#define ALARM_IN_GRP				GPIOE		// PE2, 开发板上的KEY0
+#define ALARM_PIN				GPIO_Pin_4
 
-#define ALARM_IN_GRP				GPIOC
-#define ALARM_PIN				GPIO_Pin_10
+#define ALG_IN_GRP				GPIOG
+#define ALG_PIN					GPIO_Pin_7
 
-#define ALG_IN_GRP				GPIOC
-#define ALG_PIN					GPIO_Pin_11
-
-#define FRONT_IN_GRP				GPIOC
+#define FRONT_IN_GRP				GPIOG
 #define FRONT_PIN				GPIO_Pin_12
 
-#define BACK_COIN_IN_GRP			GPIOC
+#define BACK_COIN_IN_GRP			GPIOG
 #define BACK_COIN_PIN			GPIO_Pin_13
 
-#define BAK1_IN_GRP				GPIOC
+#define BAK1_IN_GRP				GPIOG
 #define BAK1_PIN					GPIO_Pin_14
 
-#define BAK2_IN_GRP				GPIOC
+#define BAK2_IN_GRP				GPIOG
 #define BAK2_PIN					GPIO_Pin_15
 
 #define DEVICE_ALL_PIN			(TTL_PIN |LG_PIN |ALARM_PIN |ALG_PIN |FRONT_PIN |BACK_COIN_PIN |BAK1_PIN |BAK2_PIN)

@@ -36,7 +36,7 @@ uint16_t GPIO_ReadInputAll(uint8_t polar)
 		tmp = GPIO_ReadInputDataBit(device_status_queue[dev_status].gpio_grp,
 										device_status_queue[dev_status].gpio_pin);
 
-		key_val = tmp << dev_status;	// 第几个键值向左移几位.
+		key_val |= tmp << dev_status;	// 第几个键值向左移几位.
 	}
 	if ( polar == LOW_POLAR )
 	{
@@ -63,22 +63,40 @@ uint16_t GPIO_ReadInputAll(uint8_t polar)
  ******************************************************************************/
 void ReadKey(void)
 {
-	static uint16_t key_port_last=0;	/*上次扫描得到的按键端口状态*/
+	static uint16_t debounce_buffer[DEBOUNCE_TIME];	//防抖一次就可以
+	static uint8_t buffer_index = 0;
 	static uint16_t key_effective_port_last=0; /*上次经过防抖的真实按键端口状态*/
-	uint16_t key_active_port=0;	/*本次扫描键盘端口得到的状态*/
 	uint16_t key_effective_port=0;	/*表示经过消抖后确认得到的按键状态*/
+	uint16_t constant_high = 0xFF;	/*当相应位为1表明读取的几次相应位都为1*/
+	uint16_t constant_low = 0xFF;	/*当相应位为1表明读取的几次相应位都为0*/
+
+	uint8_t i = 0;
+
+	/*读取本次键值,下标自增1*/
+	debounce_buffer[buffer_index] = GPIO_ReadInputAll(HIGH_POLAR);
+	if (++buffer_index >= DEBOUNCE_TIME)
+	{
+		buffer_index = 0;
+	}
+
+	/*同时读取高有效和低有效的2个值*/
+        for (i = 0; i < DEBOUNCE_TIME; i++) {
+
+            constant_high &= debounce_buffer[i];
+            constant_low &= ~debounce_buffer[i];
+        }
+
+	/*先得到全为1的位*/
+	/*再得到全为0的位*/
+	key_effective_port |= (constant_high&0xFF);
+	key_effective_port &= ((~constant_low)&0xFF);
+
+	device_status_used.status_word[USED] = (uint8_t)key_effective_port;
 	
-        /*按键处理*/
-	key_active_port = GPIO_ReadInputAll(LOW_POLAR);	/*按键端口低电平有效,*/
-	
-	key_effective_port = (key_active_port&key_port_last);		/*当前状态与上次状态,消抖*/
-	device_status_used.status_word[USED] = key_effective_port&0xFF;
-	key_port_last = key_active_port;		/*为了消抖，需要得到上次的状态*/
-	
-	if (key_active_port !=key_effective_port_last)
+	if (key_effective_port !=key_effective_port_last)
 	{
 		system_flag |= SYS_CHANGED;	// 按键真正地变位
-		key_effective_port_last = key_active_port;
+		key_effective_port_last = key_effective_port;
 	}
 }
 

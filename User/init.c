@@ -86,8 +86,7 @@ void system_auto_detect(void)
 	DelayAndFeedDog(1200);		// Delay 1.2s
 
 	/* 表明继电器安装了,可以继续检查*/
-	//if(GPIO_ReadInputDataBit(device_status_queue[dev_status].gpio_grp,device_status_queue[dev_status].gpio_pin) == KEY_ON )
-	if(GPIO_ReadInputDataBit(device_status_queue[dev_status].gpio_grp,device_status_queue[dev_status].gpio_pin) == KEY_OFF )
+	if(GPIO_ReadInputDataBit(device_status_queue[dev_status].gpio_grp,device_status_queue[dev_status].gpio_pin) == KEY_ON)
 	{
 		DeviceX_Deactivate(dev_ctrl);	// Output a Low-signal.
 		DelayAndFeedDog(1200);		// Delay 1.2s
@@ -123,6 +122,30 @@ void system_auto_detect(void)
 	}
 }
 
+/******************************************************************************
+ * 函数名:	Key_First_Read 
+ * 描述: 初始化时候第一次读键值.
+ *         		
+ * 输入参数: 
+ * 输出参数: 
+ * 返回值: 
+ * 
+ * 作者:Jerry
+ * 创建日期:2018.11.22
+ * 
+ *------------------------
+ * 修改人:
+ * 修改日期:
+ ******************************************************************************/
+static void Key_First_Read(void)
+{
+	/*控制函数需要读键值,但是此时中断还未开*/
+	/*因此需要查询一次外部输入*/
+	ReadKey();					// 千万注意此函数的重入
+	Delay_Ms(25);					// 防抖
+	ReadKey();
+	system_flag &= ~SYS_CHANGED;	// 第一次读取不变位
+}
 
 /******************************************************************************
  * 函数名:	Param_Init 
@@ -177,6 +200,7 @@ void Param_Init(void)
 	device_control_used.control_word[BACKUP] = 0;
 	device_control_used.control_bits.ALG_down_bit = 1;		// 栏杆要落
 
+	Key_First_Read();
 	control_device();	//根据初始化的状态降栏杆
 }
 
@@ -205,7 +229,7 @@ void Init_System(void)
 	Time_Configuration();	//系统时间和延时相关定时器初始化
 	
 	LED_GPIO_Config();
-	EXTI_PE4_Config();
+	//EXTI_PE4_Config();
 
 	Comm1_Init();	// USART1 配置模式为 115200 8-N-1，中断接收
 	Comm2_Init();	// USART2 配置模式为 115200 8-N-1，中断接收
@@ -229,9 +253,9 @@ void Init_System(void)
 #endif
 
 	/*上电闪烁3次,每次50ms*/
-	LED_Flashing(LED_COM, 50, 3);
+	LED_Flashing(LED_COM, 60, 3);
 	Param_Init();
-
+	
 	/*老化测试子程序,系统将在这里进入老化,不执行后面的*/
 	//TestForLC301();		// 暂时不使用
 						

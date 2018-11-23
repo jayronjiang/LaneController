@@ -149,7 +149,6 @@ static void Task_Schedule(void)
 int main(void)
 {	
 	Init_System();
-
 	while(1)
 	{
 		/*主函数初始化,定时中断喂狗,能同时防止主函数和中断程序跑飞*/

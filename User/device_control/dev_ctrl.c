@@ -770,7 +770,7 @@ void control_device(void)
 		// 后线圈没车,高电平
 		if (Status_Get(BACK_COIL))
 		{
-			message_pack_printf(FEE_UART, FEE_R_MSG); // 降杠, 费显要为红色
+			message_pack_printf(FEE_UART, FEE_R_MSG); 	// 降杠, 费显要为红色
 			Drop_LG_Start(); 							//降杠
 			WatchingDelayCount = 4*ONE_SECOND;		//防砸监视4S
 		}
