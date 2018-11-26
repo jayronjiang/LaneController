@@ -41,7 +41,7 @@ DEVICE_STATUS_BITS device_status_used;	// 外部状态字,检测外部设备的状态
 DEVICE_CTRL	device_ctrl_queue[DEV_CTRL_NUM];	// 设备控制配置组,配置控制口的具体物理地址
 DEVICE_STATUS device_status_queue[DEV_STATUS_NUM]; //设备状态配置组
 
-uint8_t bLastLaneRedGreenOperateState = RED; // 保存上次的通行灯状态
+//uint8_t bLastLaneRedGreenOperateState = RED; // 保存上次的通行灯状态
 bool ALG_down_flag_bit = FALSE;			// 指示降杠是否开始TRUE:降杠开始
 bool ALG_up_flag_bit = FALSE;			// 指示抬杠是否开始TRUE:抬杠开始
 bool LastLaneLampState = FALSE;			// 保存上次亮灯的状态
@@ -223,6 +223,10 @@ void Device_Stat_Queue_Init(void)
 void DeviceX_Activate(DEVICE_CTRL_LIST dev)
 {
 	assert_param(dev<DEV_CTRL_NUM);
+	if ((device_ctrl_queue[dev].gpio_pin == NULL) ||((device_ctrl_queue[dev].gpio_grp== NULL)))
+	{
+		return;		// 如果为空,跳出
+	}
 	GPIO_ResetBits(device_ctrl_queue[dev].gpio_grp, device_ctrl_queue[dev].gpio_pin);
 }
 
@@ -247,6 +251,10 @@ void DeviceX_Activate(DEVICE_CTRL_LIST dev)
 void DeviceX_Deactivate(DEVICE_CTRL_LIST dev)
 {
 	assert_param(dev<DEV_CTRL_NUM);
+	if ((device_ctrl_queue[dev].gpio_pin == NULL) ||((device_ctrl_queue[dev].gpio_grp== NULL)))
+	{
+		return;		// 如果为空,跳出
+	}
 	GPIO_SetBits(device_ctrl_queue[dev].gpio_grp, device_ctrl_queue[dev].gpio_pin);
 }
 
@@ -405,6 +413,11 @@ void RCC_Clock_Set(GPIO_TypeDef* GPIOx, FunctionalState iState)
 void DEVICE_GPIO_OUT_Config(DEVICE_CTRL_LIST dev)	
 {
 	GPIO_InitTypeDef GPIO_InitStructure;
+
+	if ((device_ctrl_queue[dev].gpio_pin == NULL) ||((device_ctrl_queue[dev].gpio_grp== NULL)))
+	{
+		return;		// 如果为空,跳出
+	}
 
 	/*开启输出按键端口PX的时钟*/
 	RCC_Clock_Set(device_ctrl_queue[dev].gpio_grp, ENABLE);

@@ -1,8 +1,8 @@
 #ifndef __MESSAGE_HANDLE_H
 #define	__MESSAGE_HANDLE_H
 
-#define PC_UART			UART2_COM	//定义与PC通信的为哪个串口?
-#define FEE_UART			UART2_COM	//定义与费显和声音的串口
+#define PC_UART			UART1_COM	//定义与主机通信的为哪个串口?
+//#define FEE_UART			UART1_COM	//定义与费显和声音的串口
 #define TRANS_UART		UART2_COM	//定义透传的串口
 
 // 位定义
@@ -22,6 +22,7 @@
 #define SPK_MSG				7		// 语音报价
 #define COST_MSG			8		// 费额显示
 #define TRANS_MSG			9		// 透传命令
+#define S_RES_MSG			0x0A		// 从机的回复
 
 #define ALL8_MSG				0x10		// 显示全8，拷机测试
 #define VOXPLAY_MSG			0x11		// 拷机测试播放测试声音

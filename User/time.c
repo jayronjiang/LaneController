@@ -356,39 +356,6 @@ void TIM2_IRQHandler (void)
 			Ext_Wdt_Feed();	/*中断里面喂狗,要注意脉冲长度占用中断时间*/
 	    	}
 	}
-
-	/* 防砸监视时间到.*/
-	if(WatchingDelayCount > 0)
-	{
-		WatchingDelayCount--;
-		if(WatchingDelayCount==0) 
-		{
-			// 不再监视后线圈,接触防砸逻辑
-			system_flag &= ~CAR_WATCHING;
-		}
-	}
-
-	/* 系统检测状态和控制位是否一致,每3s检测一次*/
-	if(detect_time_counter > 0)
-	{
-		detect_time_counter--;
-	}
-	else
-	{
-		system_flag |= SYS_ERR_CHK;
-		detect_time_counter = AUTO_DETCET_TIME;
-	}
-
-	/* 报警长度,10S*/
-	if(alarm_time_counter > 0)
-	{
-		alarm_time_counter--;
-		if(alarm_time_counter == 0)
-		{
-			DeviceX_Deactivate(VOX_ALM);
-			DeviceX_Deactivate(LIGHT_ALM);
-		}
-	}
 } 
 
 

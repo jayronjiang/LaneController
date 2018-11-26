@@ -10,6 +10,7 @@
 
 #include "include.h"
 
+#if 0
 /******************************************************************************
  * 函数名:	InputDedect 
  * 描述: 查询式读取一个输入状态
@@ -87,11 +88,11 @@ static void PlayVoice(unsigned char Index)
 {
 	if (Index%5)
 	{
-		message_pack_printf(PC_UART, VOXPLAY_MSG); 
+		message_pack_printf(TRANS_UART, VOXPLAY_MSG); 
 	}
 	else
 	{
-		message_pack_printf(PC_UART, FEE_G_MSG); // 声音停止?
+		message_pack_printf(TRANS_UART, FEE_G_MSG); // 声音停止?
 	}
 }
 
@@ -176,4 +177,5 @@ void TestForLC301(void)
 		Index++;
 	}
 }
+ #endif
 

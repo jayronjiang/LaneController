@@ -150,7 +150,7 @@ void SysTick_Handler(void)
 	if( ++scan_counter >= 25 )	/*½üËÆ25msÉ¨Ãè°´¼ü*/
 	{
 		scan_counter=0;
-		ReadKey();
+		//ReadKey();
 	}	
 }
 

@@ -593,19 +593,9 @@
               <FilePath>..\..\User\extwdt\ext_wdt.c</FilePath>
             </File>
             <File>
-              <FileName>dev_ctrl.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\User\device_control\dev_ctrl.c</FilePath>
-            </File>
-            <File>
               <FileName>message_handle.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\User\message_handle\message_handle.c</FilePath>
-            </File>
-            <File>
-              <FileName>test.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\User\test.c</FilePath>
             </File>
             <File>
               <FileName>usart_driver.c</FileName>

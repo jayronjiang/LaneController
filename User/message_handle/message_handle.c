@@ -15,8 +15,7 @@ const uint8_t VerInfo[]="LC-301-V4.1-181017";
 
 /*定义通信缓冲区*/
 PROTOCOL_BUF ProtocolBuf[UART_NUM];
-static uint8_t SpkBuf[COMM_LENTH];	// 用来存储上面发来的信息，主要是用于语音报价
-
+static PROTOCOL_BUF *pScBuf = &ProtocolBuf[0];
 
 /******************************************************************************
  * 函数名:	message_unpack 
@@ -36,7 +35,6 @@ static uint8_t SpkBuf[COMM_LENTH];	// 用来存储上面发来的信息，主要是用于语音报价
 static void message_unpack(PROTOCOL_BUF *buf)
 {
 	uint8_t *rx_buf;
-	uint8_t  i = 0;
 
 	rx_buf = buf->pRxBuf;
 
@@ -52,55 +50,17 @@ static void message_unpack(PROTOCOL_BUF *buf)
 	/* CV 打印版本信息*/
 	if ((rx_buf[COM_T]=='C')&&(rx_buf[CTRL_T]=='V'))
 	{
-		message_pack(PC_UART, VER_PRINT_MSG,buf);
-		//message_send_printf(PC_UART, VER_PRINT_MSG);
 		return;
 	}
 
 	/* CD 读取内存信息*/
 	if ((rx_buf[COM_T]=='C')&&(rx_buf[CTRL_T]=='D'))
 	{
-		message_pack(PC_UART, MEM_DUMP_MSG,buf);
-		//message_send_printf(PC_UART, MEM_DUMP_MSG);
 		return;
 	}
 
-
-	/* A类信息: 起始码+通信类+设备地址+控制字节1+金额(4字节)*/
-	/* +余额(4字节)+入口站(6字节) +车型+车种+控制字节2+通讯序号*/
-	/* +结束码+校验码 (共24个 字节)*/
-	
-	/* 提取相关信息*/
-	for (i = 0; i<COMM_LENTH; i++)
-	{
-		SpkBuf[i]= rx_buf[i];
-	}
-
-	/*回复之前先更新外设状态*/
-	detect_ALG_TTL_working();
-	/* 信息正常,先对上位机PC进行回复*/
-	message_pack(PC_UART, B_RES_MSG,buf);
-
-	/* 读取有用的控制信息*/
-	/* 控制字节1:	*/
-	// 0位: 起栏杆--1为抬杆，0为保持
-	// 1位: 落栏杆--1为降杆，0为保持
-	// 2位: 顶棚灯--1为绿灯，0为红灯
-	// 3位: 声报警--1为声报警，0为声报警取消
-	// 4位: 光报警--1为光报警，0为光报警取消
-	// 5位: 通行灯--1为绿灯，0为红灯
-	// 6位: 未定义--备用
-	// 7位: 未定义--备用
-	device_control_used.control_word[USED]=SpkBuf[CTRL_T];  // 控制字节
-	
-	/* 控制字节2:	*/
-	// 0位: 栏杆控制位  --1:车辆过后自动降杆模式，0:车辆过后手动降杆模式
-	// 1位: 费额显示位  --1:费额显示，            0:费额不显示
-	// 2位: 语音报价位  --1:报价，                0:不报价
-	// 3位: 费额显示保持--1:保持，            0:刷新，当为1时，忽略bit1
-	// 4位: 费显选择位  --1:广东版本，无保持功能，0:山西版本有保持功能，本控制需要费显支持
-	// 5位: 车控器属性  --1:用于出口，            0:用于入口
-	device_control_used.control_word[BACKUP]=SpkBuf[CTRL_B];
+	/* 信息正常,对主机进行回复*/
+	message_pack(PC_UART, S_RES_MSG,buf);
 }
 
 /******************************************************************************
@@ -179,23 +139,9 @@ static uint8_t message_check(PROTOCOL_BUF *buf)
  ******************************************************************************/
 static void message_process(PROTOCOL_BUF *buf)
 {
-	uint8_t err=0;
-
-	err = message_check(buf);
-
-	if ( err == ERR_OK)
-	{
-		message_unpack(buf);
-	}
-	else if (err == SITEID_ERROR)
-	{
-		;  // 不是发给本机的,什么都不做
-	}
-	else 
-	{
-		// 如果是错误的信息处理
-		message_pack(PC_UART, ERR_RES_MSG,buf);
-	}
+	message_unpack(buf);
+	/* 错误信息或者其他的什么都不做*/
+	/* 等待发第二次*/
 }
 
 
@@ -302,24 +248,6 @@ void message_pack(uint8_t uart_no, uint8_t msg_type,PROTOCOL_BUF *buf)
 		pbuf[len++] = 0;		// BCC, 发给外设的以0结尾
 		break;
 
-	case FEE_G_MSG:
-		pbuf[len++] = MSG_SOF;
-		pbuf[len++] = 'Y';			// YY 费显灯为绿色
-		pbuf[len++] = MSG_EOF;
-		pbuf[len++] = 'Y';
-		//pbuf[4] = '\0';
-		bLastLaneRedGreenOperateState = GREEN;
-		break;
-
-	case FEE_R_MSG:
-		pbuf[len++] = MSG_SOF;
-		pbuf[len++] = 'Z';		// ZZ 费显灯为红色
-		pbuf[len++] = MSG_EOF;
-		pbuf[len++] = 'Z';
-		//pbuf[len++] = '\0';
-		bLastLaneRedGreenOperateState = RED;
-		break;
-
 	case VER_PRINT_MSG:
 		pbuf[len++] = 'X';		// 软件版本, XY-XXXX
 		pbuf[len++] = 'Y';
@@ -332,100 +260,12 @@ void message_pack(uint8_t uart_no, uint8_t msg_type,PROTOCOL_BUF *buf)
 		pbuf[len++] = 0x0A;
 		break;
 
-	/*上传一些重要变量的值,便于现场调试*/
-	case MEM_DUMP_MSG:
-		pbuf[len++] = 'X';
-		pbuf[len++] = 'Y';
-		pbuf[len++] = '_';
-		pbuf[len++] = device_control_used.control_word[USED];
-		pbuf[len++] = device_control_used.control_word[BACKUP];
-		pbuf[len++] = device_status_used.status_word[USED];
-		pbuf[len++] = device_status_used.status_word[BACKUP];
-		
-		pbuf[len++] = system_flag;
-		pbuf[len++] = ALG_up_flag_bit;
-		pbuf[len++] = ALG_down_flag_bit;
-		
-		pbuf[len++] = autoBarEnable;
-		pbuf[len++] = dete_bit_recd;
-		pbuf[len++] = LastLaneLampState;
-		pbuf[len++] = bLastLaneRedGreenOperateState;
-		
-		pbuf[len++] = bFeeCleared;
-		pbuf[len++] = WatchingDelayCount;
-		pbuf[len++] = detect_time_counter;
-		pbuf[len++] = alarm_time_counter;
-
-		pbuf[len++] = 0x0D;	// 0D0A, 回车换行
-		pbuf[len++] = 0x0A;
-		break;
-
-	case B_RES_MSG:
-		pbuf[len++] = MSG_SOF;
-		pbuf[len++] = 'B';						// 信息B
-		pbuf[len++] = LOCAL_ADD;				// 地址0x31
-		pbuf[len++] = device_status_used.status_word[USED];
-		pbuf[len++] = device_status_used.status_word[BACKUP];
-		pbuf[len++] = MSG_EOF;
-		
-		xor_t = pbuf[1];			// 'B'
-		for (i = 2; i< len-1; i++)		// MSG_SOF和EOF不参与异或
-		{
-			xor_t = xor_t^pbuf[i];	//异或校验
-		}
-		pbuf[len++] = xor_t;
-		break;
-
-	case ERR_RES_MSG:
-		pbuf[len++] = 0x15;
-		pbuf[len++] = 'E';
-		pbuf[len++] = 'E';
-		pbuf[len++] = 'E';
-		pbuf[len++] = 'E';
-		pbuf[len++] = MSG_EOF;
-		pbuf[len++] = 0;
-		break;
-
-	case SPK_MSG:
-	case COST_MSG:
-		xor_t = SpkBuf[COST_0];
-		for (i = COST_1; i<= WEIGHT; i++)		// MSG_SOF和EOF不参与异或
-		{
-			xor_t = xor_t^SpkBuf[i];			//异或校验
-		}
-		pbuf[len++] = MSG_SOF;
-		pbuf[len++] = SpkBuf[VECLE];
-		pbuf[len++] = SpkBuf[WEIGHT];			//车重
-		
-		pbuf[len++] = SpkBuf[COST_0];			// 金额
-		pbuf[len++] = SpkBuf[COST_1];
-		pbuf[len++] = SpkBuf[COST_2];
-		pbuf[len++] = SpkBuf[COST_3];
-		
-		pbuf[len++] = SpkBuf[LEFT_0];			//余额
-		pbuf[len++] = SpkBuf[LEFT_1];
-		pbuf[len++] = SpkBuf[LEFT_2];
-		pbuf[len++] = SpkBuf[LEFT_3];
-		
-		pbuf[len++] = SpkBuf[ENTRY_0];
-		pbuf[len++] = SpkBuf[ENTRY_1];
-		pbuf[len++] = SpkBuf[ENTRY_2];
-		pbuf[len++] = SpkBuf[ENTRY_3];
-		pbuf[len++] = SpkBuf[ENTRY_4];
-		pbuf[len++] = SpkBuf[ENTRY_5];
-		pbuf[len++] = MSG_EOF;
-		pbuf[len++] = xor_t;
-		if (msg_type == COST_MSG)
-		{
-			bFeeCleared = FALSE;
-		}
-		break;
-
 	/* 透传,直接拷贝*/
 	case TRANS_MSG:
-		for (len = 0; len < buf->RxLen; i++)
+		for (len = 0; len < pScBuf->RxLen; i++)
 		{
-			pbuf[len++] = buf->pRxBuf[len++];
+			pbuf[len] = pScBuf->pRxBuf[len];
+			len++;
 		}
 		break;
 
@@ -482,6 +322,22 @@ void message_pack(uint8_t uart_no, uint8_t msg_type,PROTOCOL_BUF *buf)
 
 		pbuf[len++] = MSG_EOF;
 		pbuf[len++] = 1;
+		break;
+
+	case S_RES_MSG:
+		pbuf[len++] = MSG_SOF;
+		pbuf[len++] = 'S';						// 信息B
+		pbuf[len++] = LOCAL_ADD;				// 地址0x31
+		pbuf[len++] = 0x00;
+		pbuf[len++] = 0x00;
+		pbuf[len++] = MSG_EOF;
+		
+		xor_t = pbuf[1];			// 'B'
+		for (i = 2; i< len-1; i++)		// MSG_SOF和EOF不参与异或
+		{
+			xor_t = xor_t^pbuf[i];	//异或校验
+		}
+		pbuf[len++] = xor_t;
 		break;
 		
 #ifdef TEST
@@ -742,9 +598,10 @@ void Comm_Proc(void)
 		ProtocolBuf[USARTX].RxLen = UARTBuf[USARTX].RxLen;
 		ProtocolBuf[USARTX].TxLen = 0;
 		UARTBuf[USARTX].RxLen = 0;		//已经被读取到ProtocolBuf0.RxLen, 尽快清0
+		pScBuf = &ProtocolBuf[USARTX];
 
 		/*直接先进行透传*/
-		//message_pack_printf(TRANS_UART, TRANS_MSG);
+		message_pack_printf(TRANS_UART, TRANS_MSG);
 
 		message_process(&ProtocolBuf[USARTX]);		//通信协议处理
 
@@ -758,7 +615,7 @@ void Comm_Proc(void)
 		UARTBuf[USARTX].RecFlag = 0;		//接收数据已处理，清除相关标志
 
 		/*放在括号内,只有收到新的信息才操作*/
-		params_modify_deal();		//后续的数据改变处理
+		//params_modify_deal();		//后续的数据改变处理
 	}
 }
 /*********************************************END OF FILE**********************/

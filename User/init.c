@@ -11,6 +11,7 @@
 
 #include "include.h"
 
+ #if 0
 /*初次上电标志*/
 static uint8_t PowerOnFlag = 0;
 
@@ -122,6 +123,7 @@ void system_auto_detect(void)
 	}
 }
 
+
 /******************************************************************************
  * 函数名:	Key_First_Read 
  * 描述: 初始化时候第一次读键值.
@@ -168,26 +170,8 @@ void Param_Init(void)
 
 	Device_Ctrl_Queue_Init();
 	Device_Stat_Queue_Init();
-	
-	if(PowerOnFlag != (uint8_t)0xAA)
-	{
-		PowerOnFlag = (uint8_t)0xAA;
-		system_auto_detect();
-	#ifdef DEBUG_MODE
-		message_pack_printf(PC_UART, A_MSG);
-		Delay_Ms(10);
-		message_pack_printf(PC_UART, CR_MSG);
-		Delay_Ms(10);
-		message_pack_printf(PC_UART, CV_MSG);
-		Delay_Ms(10);
-		message_pack_printf(PC_UART, CD_MSG);
-	#endif
-	}
-	else	
-	{
-		message_pack_printf(PC_UART,VER_PRINT_MSG);	//poweron info, used for debugging
-	}
 
+	/*不检查外设的安装情况*/
 	for (i_ctrl = BAR_UP;  i_ctrl < DEV_CTRL_NUM; i_ctrl++)
 	{
 		DeviceX_Deactivate(i_ctrl);	 // 外设全部初始化为无效
@@ -203,8 +187,7 @@ void Param_Init(void)
 	Key_First_Read();
 	control_device();	//根据初始化的状态降栏杆
 }
-
-
+#endif
 /******************************************************************************
  * 函数名:	Init_System 
  * 描述: 初始化系统配置
@@ -254,7 +237,7 @@ void Init_System(void)
 
 	/*上电闪烁3次,每次50ms*/
 	LED_Flashing(LED_COM, 60, 3);
-	Param_Init();
+	//Param_Init();
 	
 	/*老化测试子程序,系统将在这里进入老化,不执行后面的*/
 	//TestForLC301();		// 暂时不使用
