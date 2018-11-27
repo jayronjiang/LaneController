@@ -1,15 +1,18 @@
 #ifndef __MESSAGE_HANDLE_H
 #define	__MESSAGE_HANDLE_H
 
-#define PC_UART			UART2_COM	//定义与PC通信的为哪个串口?
+#define PC_UART			UART1_COM	//定义与PC通信的为哪个串口?
 #define FEE_UART			UART2_COM	//定义与费显和声音的串口
-#define TRANS_UART		UART2_COM	//定义透传的串口
+#define TRANS_UART		UART1_COM	//定义透传的串口
 
 // 位定义
 #define MSG_SOF			0x02		// 信息的开始
 #define MSG_EOF			0x03		// 信息的结束
 
 #define COMM_LENTH 		24		// 信息总长24
+
+#define RES_TIMEOUT		5000		// 等待费显控制器回复,500ms
+#define RES_TIMES			2		// 重发次数,2次
 
 // 信息类型定义
 #define INTT_MSG				0
@@ -40,6 +43,7 @@
 #define LENGTH_ERROR		2		/*包长度不对*/
 #define CRC_ERROR			3		/*CRC校验错误*/
 #define SOF_ERROR			4		/*前导符或结束符错误*/
+#define RE_INFO			5		/*这是一个回复帧*/
 
 
 // 通信协议的字节定义

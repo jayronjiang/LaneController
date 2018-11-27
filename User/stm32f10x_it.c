@@ -145,7 +145,7 @@ void SysTick_Handler(void)
 		LED2_TOGGLE;	//运行灯,1s取反一次
 	}
 	
-	//UARTProcessTickEvents();	/*UART通信帧间隔判断*/
+	UARTProcessTickEvents();	/*UART通信帧间隔判断*/
 	
 	if( ++scan_counter >= 25 )	/*近似25ms扫描按键*/
 	{

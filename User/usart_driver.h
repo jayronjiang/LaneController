@@ -23,13 +23,15 @@ typedef struct
 	uint16_t TxPoint;
 	uint16_t RxLen;
 	uint8_t RecFlag;
+	uint8_t ReSend;		/*重发标志*/
+	uint8_t ReTimes;		/*重发次数*/
 	uint16_t Timer;		/*T15/T35计时*/
 }UART_BUF;
 
 extern  UART_BUF UARTBuf[UART_NUM];;
 extern uint8_t uart_sel;
 
-void printf_test(void);
+void UARTProcessTickEvents(void);
 
 #endif /*__USART_DRIVER_H */
 

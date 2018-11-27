@@ -40,7 +40,7 @@ void UARTProcessTickEvents(void)
 			UARTBuf[i].Timer--;
 			if( UARTBuf[i].Timer == 0 )
 			{
-				UARTBuf[i].RecFlag = 1;
+				UARTBuf[i].ReSend = TRUE;
 			}
 		}
 	}

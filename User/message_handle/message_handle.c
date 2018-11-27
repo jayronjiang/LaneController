@@ -16,7 +16,7 @@ const uint8_t VerInfo[]="LC-301-V4.1-181017";
 /*定义通信缓冲区*/
 PROTOCOL_BUF ProtocolBuf[UART_NUM];
 static uint8_t SpkBuf[COMM_LENTH];	// 用来存储上面发来的信息，主要是用于语音报价
-
+uint8_t msg_last = FEE_G_MSG;		// 保存要重发的信息
 
 /******************************************************************************
  * 函数名:	message_unpack 
@@ -159,6 +159,13 @@ static uint8_t message_check(PROTOCOL_BUF *buf)
 			err = SOF_ERROR;
 		}
 	}
+
+	/*如果是回复帧'S'*/
+	if ((rx_len == 7) && (rx_buf[BSOF] == MSG_SOF) && (rx_buf[COM_T] == 0x53))
+	{
+		err = RE_INFO;
+	}
+		
 	return err;
 }
 
@@ -177,7 +184,7 @@ static uint8_t message_check(PROTOCOL_BUF *buf)
  * 修改人:
  * 修改日期:
  ******************************************************************************/
-static void message_process(PROTOCOL_BUF *buf)
+static uint8_t message_process(PROTOCOL_BUF *buf)
 {
 	uint8_t err=0;
 
@@ -196,6 +203,8 @@ static void message_process(PROTOCOL_BUF *buf)
 		// 如果是错误的信息处理
 		message_pack(PC_UART, ERR_RES_MSG,buf);
 	}
+
+	return err;
 }
 
 
@@ -707,6 +716,25 @@ void message_pack_printf(uint8_t uartNo, uint8_t msg_type)
 	}
 	pProbuf->TxLen = 0;
 	LED_Set(LED_COM, OFF); 	// 通信完毕
+	
+	/*费显,等待回复*/
+	if (uartNo == FEE_UART)
+	{
+		/*如果费显没有收到信息,一定时间后进行重发*/
+		/*并直接把timer重新置位, 冲掉原来的信息*/
+		UARTBuf[uartNo].Timer = RES_TIMEOUT;
+		msg_last = msg_type;
+		/*如果本来就是重发信息*/
+		if (UARTBuf[uartNo].ReSend)
+		{
+			UARTBuf[uartNo].ReSend = FALSE;	// 清掉
+		}
+		else
+		{	
+			/*如果不是则把重发次数复位*/
+			UARTBuf[uartNo].ReTimes= 0;
+		}
+	}
 	/*printf无法输出状态量0*/
 	//printf("%s", pProbuf->pTxBuf);
 }
@@ -730,6 +758,7 @@ void message_pack_printf(uint8_t uartNo, uint8_t msg_type)
 void Comm_Proc(void)
 {
 	USART_LIST USARTX = PC_UART;
+	uint8_t err = ERROR;
 
 	if (UARTBuf[USARTX].RecFlag)		                      //RS485口有数据
 	{	
@@ -746,7 +775,7 @@ void Comm_Proc(void)
 		/*直接先进行透传*/
 		//message_pack_printf(TRANS_UART, TRANS_MSG);
 
-		message_process(&ProtocolBuf[USARTX]);		//通信协议处理
+		err = message_process(&ProtocolBuf[USARTX]);		//通信协议处理
 
 		UARTBuf[USARTX].TxLen = ProtocolBuf[USARTX].TxLen;  //置换回来，处理物理层数据
 		if(UARTBuf[USARTX].TxLen >0)
@@ -758,7 +787,46 @@ void Comm_Proc(void)
 		UARTBuf[USARTX].RecFlag = 0;		//接收数据已处理，清除相关标志
 
 		/*放在括号内,只有收到新的信息才操作*/
-		params_modify_deal();		//后续的数据改变处理
+		if (err == ERR_OK)
+		{
+			params_modify_deal();		//后续的数据改变处理
+		}
+	}
+
+	USARTX = FEE_UART;
+	if (UARTBuf[USARTX].RecFlag)
+	{
+		ProtocolBuf[USARTX].pTxBuf = UARTBuf[USARTX].TxBuf;         //地址置换
+		ProtocolBuf[USARTX].pRxBuf = UARTBuf[USARTX].RxBuf;
+		ProtocolBuf[USARTX].RxLen = UARTBuf[USARTX].RxLen;
+		ProtocolBuf[USARTX].TxLen = 0;
+		UARTBuf[USARTX].RxLen = 0;		//已经被读取到ProtocolBuf0.RxLen, 尽快清0
+
+		err = message_check(&ProtocolBuf[USARTX]);
+
+		/*收到回复帧, 不重发*/
+		if (err == RE_INFO)
+		{
+			UARTBuf[USARTX].ReSend = FALSE;
+			UARTBuf[USARTX].Timer= 0;
+		}
+		UARTBuf[USARTX].RecFlag = 0;
+	}
+
+	/*重发时间到*/
+	if (UARTBuf[USARTX].ReSend)
+	{
+		UARTBuf[USARTX].ReTimes++;
+		if (UARTBuf[USARTX].ReTimes < RES_TIMES)
+		{
+			message_pack_printf(FEE_UART, msg_last);
+		}
+		else
+		{
+			/*不清掉重发标志,由于主循环很快,UARTBuf[USARTX].ReTimes*/
+			/*就会很快就到了一个反转循环*/
+			UARTBuf[USARTX].ReSend = FALSE;
+		}
 	}
 }
 /*********************************************END OF FILE**********************/
