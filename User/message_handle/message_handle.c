@@ -177,9 +177,9 @@ static uint8_t message_check(PROTOCOL_BUF *buf)
  * 修改人:
  * 修改日期:
  ******************************************************************************/
-static void message_process(PROTOCOL_BUF *buf)
+static uint8_t message_process(PROTOCOL_BUF *buf)
 {
-	uint8_t err=0;
+	uint8_t err = 0;
 
 	err = message_check(buf);
 
@@ -196,6 +196,8 @@ static void message_process(PROTOCOL_BUF *buf)
 		// 如果是错误的信息处理
 		message_pack(PC_UART, ERR_RES_MSG,buf);
 	}
+
+	return err;
 }
 
 
@@ -730,6 +732,7 @@ void message_pack_printf(uint8_t uartNo, uint8_t msg_type)
 void Comm_Proc(void)
 {
 	USART_LIST USARTX = PC_UART;
+	uint8_t err = ERR_OK;
 
 	if (UARTBuf[USARTX].RecFlag)		                      //RS485口有数据
 	{	
@@ -746,7 +749,7 @@ void Comm_Proc(void)
 		/*直接先进行透传*/
 		//message_pack_printf(TRANS_UART, TRANS_MSG);
 
-		message_process(&ProtocolBuf[USARTX]);		//通信协议处理
+		err = message_process(&ProtocolBuf[USARTX]);		//通信协议处理
 
 		UARTBuf[USARTX].TxLen = ProtocolBuf[USARTX].TxLen;  //置换回来，处理物理层数据
 		if(UARTBuf[USARTX].TxLen >0)
@@ -758,7 +761,10 @@ void Comm_Proc(void)
 		UARTBuf[USARTX].RecFlag = 0;		//接收数据已处理，清除相关标志
 
 		/*放在括号内,只有收到新的信息才操作*/
-		params_modify_deal();		//后续的数据改变处理
+		if (err == ERR_OK)
+		{
+			params_modify_deal();		//后续的数据改变处理
+		}
 	}
 }
 /*********************************************END OF FILE**********************/
