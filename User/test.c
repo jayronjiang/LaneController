@@ -54,7 +54,7 @@ static bool InputDedect(DEVICE_STATUS_LIST dev)
  * 修改人:
  * 修改日期:
  ******************************************************************************/
-static void UpdateFeeDisplay(unsigned char Index)
+static void UpdateFeeDisplay(uint8_t Index)
 {
 	if (Index%2)
 	{
@@ -83,7 +83,7 @@ static void UpdateFeeDisplay(unsigned char Index)
  * 修改人:
  * 修改日期:
  ******************************************************************************/
-static void PlayVoice(unsigned char Index)
+static void PlayVoice(uint8_t Index)
 {
 	if (Index%5)
 	{
@@ -155,7 +155,7 @@ static void SetControlPort(bool bOnOff)
  ******************************************************************************/
 void TestForLC301(void)
 {
-	unsigned char Index=0;
+	uint8_t Index=0;
 
 	/*如果上电读取P2.6有效,进入老化测试*/
 	if(!InputDedect(BAK1))

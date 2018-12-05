@@ -29,7 +29,8 @@ typedef struct
 extern  UART_BUF UARTBuf[UART_NUM];;
 extern uint8_t uart_sel;
 
-void printf_test(void);
+int UART_fputc(int ch);
+int  UART_fgetc(void);
 
 #endif /*__USART_DRIVER_H */
 

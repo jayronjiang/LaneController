@@ -17,6 +17,10 @@ extern volatile uint32_t system_time_ms;
 #define ALARM_TIME			(10  *ONE_SECOND)
 
 
+// xx时间片（机器周期数）
+#define TIME_SPLIT_1US 	((SystemCoreClock)/1000000)		// 1微妙周期数，1.8432@22.118,400MHz
+#define TIME_SPLIT_1MS 	((SystemCoreClock)/1000)	   		// 1毫秒周期数，1843.2@22.118,400MHz
+
 void Delay_Xus(uint16_t us);
 void Delay_Xms(uint16_t ms);
 void Delay_Ms(uint32_t myMs);

@@ -1,9 +1,9 @@
 #ifndef __MESSAGE_HANDLE_H
 #define	__MESSAGE_HANDLE_H
 
-#define PC_UART			UART2_COM	//定义与PC通信的为哪个串口?
-#define FEE_UART			UART2_COM	//定义与费显和声音的串口
-#define TRANS_UART		UART2_COM	//定义透传的串口
+#define PC_UART			UART1_COM	//定义与PC通信的为哪个串口?
+#define FEE_UART			UART1_COM	//定义与费显和声音的串口
+#define TRANS_UART		UART1_COM	//定义透传的串口
 
 // 位定义
 #define MSG_SOF			0x02		// 信息的开始
@@ -79,8 +79,8 @@ typedef  struct
 
 extern PROTOCOL_BUF	ProtocolBuf[UART_NUM];
 
-void Comm1_Init(void);
-void Comm2_Init(void);
+void Comm1_Init(uint32_t baudrate);
+void Comm2_Init(uint32_t baudrate);
 void message_pack(uint8_t uart_no, uint8_t msg_type,PROTOCOL_BUF *buf);
 void message_send_printf(uint8_t uartNo);
 void message_pack_printf(uint8_t uartNo, uint8_t msg_type);

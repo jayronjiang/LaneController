@@ -122,4 +122,48 @@ int fgetc(FILE *f)
 	return (int)USART_ReceiveData(pusart);
 }
 
+
+/******************************************************************************
+ * 函数名:	UART_fputc 
+ * 描述: 
+ *            -移植ATE_SHELL的输出接口函数
+ * 输入参数: 
+ * 输出参数: 
+ * 返回值: 
+ * 
+ *------------------------
+ * 修改人:Jerry
+ * 修改日期:2018.12.03
+ ******************************************************************************/
+int UART_fputc(int ch)
+{
+	/* 发送一个字节数据到USARTx */
+	USART_SendData(SHELL_USART, (uint8_t) ch);
+		
+	/* 等待发送完毕 */
+	while (USART_GetFlagStatus(SHELL_USART, USART_FLAG_TXE) == RESET);		
+	
+	return (ch);
+}
+
+/******************************************************************************
+ * 函数名:	UART_fgetc 
+ * 描述: 
+ *            -移植ATE_SHELL的输入接口函数
+ * 输入参数: 
+ * 输出参数: 
+ * 返回值: 
+ * 
+ *------------------------
+ * 修改人:Jerry
+ * 修改日期:2018.11.21
+ ******************************************************************************/
+int  UART_fgetc(void)
+{
+	/* 等待串口1输入数据 */
+	while (USART_GetFlagStatus(SHELL_USART, USART_FLAG_RXNE) == RESET);
+
+	return (int)USART_ReceiveData(SHELL_USART);
+}
+
 /*********************************************END OF FILE**********************/

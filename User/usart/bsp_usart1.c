@@ -25,7 +25,7 @@
  * 修改人:
  * 修改日期:
  ******************************************************************************/
-void USART1_Config(void)
+void USART1_Config(uint32_t baudrate)
 {
 	GPIO_InitTypeDef GPIO_InitStructure;
 	USART_InitTypeDef USART_InitStructure;
@@ -45,7 +45,7 @@ void USART1_Config(void)
 	GPIO_Init(GPIOA, &GPIO_InitStructure);
 	
 	/* USART1 mode config */
-	USART_InitStructure.USART_BaudRate = 115200;
+	USART_InitStructure.USART_BaudRate = baudrate;
 	USART_InitStructure.USART_WordLength = USART_WordLength_8b;
 	USART_InitStructure.USART_StopBits = USART_StopBits_1;
 	USART_InitStructure.USART_Parity = USART_Parity_No ;
@@ -137,9 +137,9 @@ void Param_USART1_Init(void)
  * 修改人:
  * 修改日期:
  ******************************************************************************/
-void USART1_Init(void)
+void USART1_Init(uint32_t baudrate)
 {
-	USART1_Config();
+	USART1_Config(baudrate);
 	Param_USART1_Init();
 }
 

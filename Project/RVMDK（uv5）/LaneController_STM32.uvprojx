@@ -338,7 +338,7 @@
               <MiscControls></MiscControls>
               <Define>STM32F10X_HD, USE_STDPERIPH_DRIVER</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\Libraries\CMSIS;..\..\User;..\..\Libraries\FWlib\inc;..\..\User\IIC;..\..\User\Key;..\..\User\LED;..\..\User\motor;..\..\User\SysTick;..\..\User\usart;..\..\User\device_control;..\..\User\extwdt;..\..\User\message_handle</IncludePath>
+              <IncludePath>..\..\Libraries\CMSIS;..\..\User;..\..\Libraries\FWlib\inc;..\..\User\IIC;..\..\User\Key;..\..\User\LED;..\..\User\motor;..\..\User\SysTick;..\..\User\usart;..\..\User\device_control;..\..\User\extwdt;..\..\User\message_handle;..\..\User\spi;..\..\User\debug;..\..\User\sys;..\..\User\ATE_shell</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -616,6 +616,36 @@
               <FileName>bsp_usart1.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\User\usart\bsp_usart1.c</FilePath>
+            </File>
+            <File>
+              <FileName>spi.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\User\spi\spi.c</FilePath>
+            </File>
+            <File>
+              <FileName>w25qxx.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\User\spi\w25qxx.c</FilePath>
+            </File>
+            <File>
+              <FileName>debug.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\User\debug\debug.c</FilePath>
+            </File>
+            <File>
+              <FileName>sys.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\User\sys\sys.c</FilePath>
+            </File>
+            <File>
+              <FileName>ATE_Shell.C</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\User\ATE_shell\ATE_Shell.C</FilePath>
+            </File>
+            <File>
+              <FileName>xmodem.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\User\ATE_shell\xmodem.c</FilePath>
             </File>
           </Files>
         </Group>

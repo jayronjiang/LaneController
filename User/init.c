@@ -173,14 +173,14 @@ void Param_Init(void)
 	{
 		PowerOnFlag = (uint8_t)0xAA;
 		system_auto_detect();
-	#ifdef DEBUG_MODE
-		message_pack_printf(PC_UART, A_MSG);
-		Delay_Ms(10);
-		message_pack_printf(PC_UART, CR_MSG);
-		Delay_Ms(10);
-		message_pack_printf(PC_UART, CV_MSG);
-		Delay_Ms(10);
-		message_pack_printf(PC_UART, CD_MSG);
+	#ifdef DEBUG_EN
+		//message_pack_printf(PC_UART, A_MSG);
+		//Delay_Ms(10);
+		//message_pack_printf(PC_UART, CR_MSG);
+		//Delay_Ms(10);
+		//message_pack_printf(PC_UART, CV_MSG);
+		//Delay_Ms(10);
+		//message_pack_printf(PC_UART, CD_MSG);
 	#endif
 	}
 	else	
@@ -231,8 +231,10 @@ void Init_System(void)
 	LED_GPIO_Config();
 	//EXTI_PE4_Config();
 
-	Comm1_Init();	// USART1 配置模式为 115200 8-N-1，中断接收
-	Comm2_Init();	// USART2 配置模式为 115200 8-N-1，中断接收
+	Comm1_Init(115200);	// USART1 配置模式为 115200 8-N-1，中断接收
+	Comm2_Init(115200);	// USART2 配置模式为 115200 8-N-1，中断接收
+
+	W25QXX_Init();		//W25QXX初始化
 	
 	/*滴答定时器初始化，1ms中断周期*/
 	/* 这个定时器用于驱动整个循环运行，放在初始化的最后*/
@@ -255,10 +257,15 @@ void Init_System(void)
 	/*上电闪烁3次,每次50ms*/
 	LED_Flashing(LED_COM, 60, 3);
 	Param_Init();
+	debug_puts("SPI test: KEY1:Write  KEY0:Read");
+
+	LED_Set(LED_COM, ON);		//编程指示灯亮
+	ATE_main();
+	LED_Set(LED_COM, OFF);	
 	
 	/*老化测试子程序,系统将在这里进入老化,不执行后面的*/
 	//TestForLC301();		// 暂时不使用
-						
+
 	INT_ENABLE();
 	Timer_Start();
 	SysTick_start();

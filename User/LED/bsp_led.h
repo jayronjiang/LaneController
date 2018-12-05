@@ -24,6 +24,7 @@
 //#define LED_3		GPIO_Pin_9
 
 #define LED_COM		LED_1
+#define LED_RUN		LED_2	// 运行灯
 
 /*带参宏，可以像内联函数一样使用*/
 #define LED1(a)	if (a)	\

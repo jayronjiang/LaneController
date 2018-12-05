@@ -216,10 +216,10 @@ static uint8_t message_process(PROTOCOL_BUF *buf)
  * 修改人:
  * 修改日期:
  ******************************************************************************/
-void Comm1_Init(void)
+void Comm1_Init(uint32_t baudrate)
 {
 	// 物理层初始化
-	USART1_Init();
+	USART1_Init(baudrate);
 	/*初始化协议层缓冲区数据*/
 	ProtocolBuf[UART1_COM].pTxBuf = UARTBuf[UART1_COM].TxBuf;
 	ProtocolBuf[UART1_COM].pRxBuf = UARTBuf[UART1_COM].RxBuf;
@@ -242,10 +242,10 @@ void Comm1_Init(void)
  * 修改人:
  * 修改日期:
  ******************************************************************************/
- void Comm2_Init(void)
+ void Comm2_Init(uint32_t baudrate)
 {
 	// 物理层初始化
-	USART2_Init();
+	USART2_Init(baudrate);
 	/*初始化协议层缓冲区数据*/
 	ProtocolBuf[UART2_COM].pTxBuf = UARTBuf[UART2_COM].TxBuf;
 	ProtocolBuf[UART2_COM].pRxBuf = UARTBuf[UART2_COM].RxBuf;
@@ -502,7 +502,7 @@ void message_pack(uint8_t uart_no, uint8_t msg_type,PROTOCOL_BUF *buf)
 		break;
 #endif
 
-#ifdef DEBUG_MODE
+#ifdef DEBUG_EN
 	case A_MSG:
 		pbuf[len++] = MSG_SOF;
 		pbuf[len++] = 'A';
@@ -736,8 +736,8 @@ void Comm_Proc(void)
 
 	if (UARTBuf[USARTX].RecFlag)		                      //RS485口有数据
 	{	
-		#ifdef DEBUG_MODE
-	  		printf("%s",UARTBuf[USARTX].RxBuf);    //将接受到的数据直接返回打印
+		#ifdef DEBUG_EN
+	  		//printf("%s",UARTBuf[USARTX].RxBuf);    //将接受到的数据直接返回打印
 	  	#endif
 		
 		ProtocolBuf[USARTX].pTxBuf = UARTBuf[USARTX].TxBuf;         //地址置换
