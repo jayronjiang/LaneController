@@ -227,6 +227,7 @@ void Init_System(void)
 	/*There are 2 different PreemptionPriorities in the TIM init. */
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_1);
 	Time_Configuration();	//系统时间和延时相关定时器初始化
+	TIM4_PWM_Init(PWM_8KHZ,0);	//TIM4 PWM初始化, Fpwm=72M/9000=8Khz.
 	
 	LED_GPIO_Config();
 	//EXTI_PE4_Config();
@@ -269,4 +270,9 @@ void Init_System(void)
 	INT_ENABLE();
 	Timer_Start();
 	SysTick_start();
+
+	// 用内置的语音样本测试PCA
+	PCA_Test_SampleVox();   DEBUG_PUTS_("Beep....\n");
+	PCA_Test_SampleVox();   DEBUG_PUTS_("Beep....\n");
+	PCA_Test_SampleVox();   DEBUG_PUTS_("Beep....\n");
 }

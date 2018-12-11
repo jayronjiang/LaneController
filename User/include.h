@@ -25,6 +25,8 @@
 #include "ATE_Shell.h"
 #include "test.h"
 #include "debug.h"
+#include "PCA.h"
+#include "SpeakVox.h"
 
 #endif /* __INCLUDE_H */
 

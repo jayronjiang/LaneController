@@ -82,7 +82,7 @@ uint8_t SPI2_ReadWriteByte(uint8_t TxData)
 	return SPI_I2S_ReceiveData(SPI2); //返回通过SPIx最近接收的数据					    
 }
 
-uint8_t   SPI_Get_Byte()   
+uint8_t   SPI_Get_Byte(void)   
 {
 	uint8_t retry=0;
 	//检查指定的SPI标志位设置与否:接受缓存非空标志位
