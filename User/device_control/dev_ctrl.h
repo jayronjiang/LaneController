@@ -21,55 +21,55 @@ typedef enum
 
 
 /*Low level, e.g. if want to up the BAR, set: BAR_UP = 0 */
-#define BAR_UP_OUT_GRP			GPIOC
+#define BAR_UP_OUT_GRP			GPIOA
 #define BAR_UP_POUT				GPIO_Pin_0	//栏杆起
 
-#define BAR_DOWN_OUT_GRP		GPIOC
+#define BAR_DOWN_OUT_GRP		GPIOA
 #define BAR_DOWN_POUT			GPIO_Pin_1 	// 栏杆落
 
-#define TTL_GREEN_OUT_GRP		GPIOC
-#define TTL_GREEN_POUT			GPIO_Pin_2	// 雨棚灯
+#define TTL_GREEN_OUT_GRP		GPIOA
+#define TTL_GREEN_POUT			GPIO_Pin_6	// 雨棚灯
 
-#define VOX_ALM_OUT_GRP			GPIOC
-#define VOX_ALM_POUT			GPIO_Pin_3			// 声音报警器
+#define VOX_ALM_OUT_GRP			GPIOA
+#define VOX_ALM_POUT			GPIO_Pin_7			// 声音报警器
 
-#define LIGHT_ALM_OUT_GRP		GPIOC
-#define LIGHT_ALM_POUT			GPIO_Pin_4			// 光报警器
+#define LIGHT_ALM_OUT_GRP		GPIOB
+#define LIGHT_ALM_POUT			GPIO_Pin_0			// 光报警器
 
-#define LAN_LAMP_OUT_GRP		GPIOC
-#define LAN_LAMP_POUT			GPIO_Pin_5			// 车道通信灯
+#define LAN_LAMP_OUT_GRP		GPIOB
+#define LAN_LAMP_POUT			GPIO_Pin_1			// 车道通信灯
 
 #define BAK1_USED_OUT_GRP		GPIOC
-#define BAK1_USED_POUT			GPIO_Pin_6			// 备用?
+#define BAK1_USED_POUT			GPIO_Pin_8			// 备用?
 
 #define BAK2_USED_OUT_GRP		GPIOC
-#define BAK2_USED_POUT			GPIO_Pin_7			// 备用?
+#define BAK2_USED_POUT			GPIO_Pin_9			// 备用?
 
 
 /*开发板上不宜使用PC8~PC15*/
-#define TTL_IN_GRP				GPIOE		// PE2, 开发板上的KEY2
-#define TTL_PIN					GPIO_Pin_2	//雨棚灯状态反馈
+#define TTL_IN_GRP				GPIOC		// PE2, 开发板上的KEY2
+#define TTL_PIN					GPIO_Pin_0	//雨棚灯状态反馈
 
-#define LG_IN_GRP				GPIOE		// PE2, 开发板上的KEY1
-#define LG_PIN					GPIO_Pin_3	//栏杆落状态反馈
+#define LG_IN_GRP				GPIOC		// PE2, 开发板上的KEY1
+#define LG_PIN					GPIO_Pin_1	//栏杆落状态反馈
 
-#define ALARM_IN_GRP				GPIOE		// PE2, 开发板上的KEY0
-#define ALARM_PIN				GPIO_Pin_4
+#define ALARM_IN_GRP				GPIOC		// PE2, 开发板上的KEY0
+#define ALARM_PIN				GPIO_Pin_2
 
-#define ALG_IN_GRP				GPIOG
-#define ALG_PIN					GPIO_Pin_7
+#define ALG_IN_GRP				GPIOC
+#define ALG_PIN					GPIO_Pin_3
 
-#define FRONT_IN_GRP				GPIOG
-#define FRONT_PIN				GPIO_Pin_12
+#define FRONT_IN_GRP				GPIOC
+#define FRONT_PIN				GPIO_Pin_4
 
-#define BACK_COIN_IN_GRP			GPIOG
-#define BACK_COIN_PIN			GPIO_Pin_13
+#define BACK_COIN_IN_GRP			GPIOC
+#define BACK_COIN_PIN			GPIO_Pin_5
 
-#define BAK1_IN_GRP				GPIOG
-#define BAK1_PIN					GPIO_Pin_14
+#define BAK1_IN_GRP				GPIOC
+#define BAK1_PIN					GPIO_Pin_6
 
-#define BAK2_IN_GRP				GPIOG
-#define BAK2_PIN					GPIO_Pin_15
+#define BAK2_IN_GRP				GPIOC
+#define BAK2_PIN					GPIO_Pin_7
 
 #define DEVICE_ALL_PIN			(TTL_PIN |LG_PIN |ALARM_PIN |ALG_PIN |FRONT_PIN |BACK_COIN_PIN |BAK1_PIN |BAK2_PIN)
 

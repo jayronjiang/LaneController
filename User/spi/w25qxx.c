@@ -34,6 +34,7 @@ void W25QXX_Init(void)
         W25QXX_CS=1;				//SPI FLASH不选中
 	SPI2_Init();		   	//初始化SPI
 	SPI2_SetSpeed(SPI_BaudRatePrescaler_2);//设置为18M时钟,高速模式
+#if 0
 	W25QXX_TYPE=W25QXX_ReadID();//读取FLASH ID.  
 
 	while(W25QXX_ReadID()!=W25Q128)		//检测不到W25Q128
@@ -44,6 +45,7 @@ void W25QXX_Init(void)
 		Delay_Ms(500);
 		LED1_TOGGLE;		//DS0闪烁
 	}
+#endif
 }  
 
 //读取W25QXX的状态寄存器

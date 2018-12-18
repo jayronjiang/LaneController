@@ -778,6 +778,7 @@ void control_device(void)
 		{
 			// 后线圈有车, 启动自动落杆逻辑
 			autoBarEnable = TRUE;
+			device_control_used.control_bits.Lane_lamp_bit = 1; //强行改变通行灯命令,因为没降杆
 		}
 	}
 
@@ -923,18 +924,18 @@ void ClearFEEdisplay(void)
 		if(device_control_used.control_bits.bFeeDispSelection ==0)
 		{
 			//对于陕西版本的费显，只要开绿灯不清除费额
-			message_pack_printf(FEE_UART, FEE_G_MSG);
+			;
 		}
 		else
 		{
 			//对于广东版本的费显，只要开绿灯或红灯都清除费额
-			message_pack_printf(FEE_UART, FEE_R_MSG);
+			message_pack_printf(FEE_UART, COST_OFF_MSG);
 		}
 	}
 	else
 	{
 		//不管是哪个版本的费显，只要开红灯都清除费额
-		message_pack_printf(FEE_UART, FEE_R_MSG);
+		message_pack_printf(FEE_UART, COST_OFF_MSG);
 	}
 }
 
@@ -981,7 +982,7 @@ void params_modify_deal(void)
 		/* 必须是栏杆没有被控制*/
 		if((Command_Get(BAR_UP) == 0)&&(Command_Get(BAR_DOWN) == 0))
 		{
-			message_pack_printf(FEE_UART, SPK_MSG);	// 扬声器输出
+			//message_pack_printf(FEE_UART, SPK_MSG);	// 扬声器输出,暂时不输出
 		}
 
 		/* 如果是抬杠命令, 和费显绿灯一样的语音*/
@@ -1003,7 +1004,7 @@ void params_modify_deal(void)
 		// 费额需要显示
 		if(device_control_used.control_bits.FEE_display_bit == 1)
 		{
-			message_pack_printf(FEE_UART, COST_MSG);
+			message_pack_printf(FEE_UART, COST_ON_MSG);
 		}
 		else
 		{

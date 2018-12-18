@@ -12,8 +12,8 @@ typedef enum
 }USART_LIST;
 
 // 不需要接收/发送那么长数据, 接收要不小于COMM_LENTH
-#define UART_RXBUF_SIZE		32		//接收缓冲的大小
-#define UART_TXBUF_SIZE		32		//发送缓冲的大小
+#define UART_RXBUF_SIZE		64		//接收缓冲的大小
+#define UART_TXBUF_SIZE		64		//发送缓冲的大小
 
 typedef struct 
 {

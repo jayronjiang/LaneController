@@ -2,14 +2,17 @@
 #define	__MESSAGE_HANDLE_H
 
 #define PC_UART			UART1_COM	//定义与PC通信的为哪个串口?
-#define FEE_UART			UART1_COM	//定义与费显和声音的串口
-#define TRANS_UART		UART1_COM	//定义透传的串口
+#define FEE_UART			UART2_COM	//定义与费显和声音的串口
+#define TRANS_UART		UART2_COM	//定义透传的串口
 
 // 位定义
 #define MSG_SOF			0x02		// 信息的开始
 #define MSG_EOF			0x03		// 信息的结束
 
-#define COMM_LENTH 		24		// 信息总长24
+#define COM_CTRL_LENTH 		24		// 信息总长24
+#define COM_FX1_LENTH 		52		// 费显,信息总长24
+#define COM_FX2_LENTH 		6		// 费显红绿灯,长度6
+#define COM_FX3_LENTH 		4		// 清除费显,或全亮4
 
 // 信息类型定义
 #define INTT_MSG				0
@@ -20,8 +23,9 @@
 #define B_RES_MSG			5		//以信息B回复
 #define ERR_RES_MSG			6		//信息格式错误
 #define SPK_MSG				7		// 语音报价
-#define COST_MSG			8		// 费额显示
-#define TRANS_MSG			9		// 透传命令
+#define COST_ON_MSG				8		// 费额显示
+#define COST_OFF_MSG				9		// 费额清除
+#define TRANS_MSG			0x0A		// 透传命令
 
 #define ALL8_MSG				0x10		// 显示全8，拷机测试
 #define VOXPLAY_MSG			0x11		// 拷机测试播放测试声音
@@ -40,6 +44,8 @@
 #define LENGTH_ERROR		2		/*包长度不对*/
 #define CRC_ERROR			3		/*CRC校验错误*/
 #define SOF_ERROR			4		/*前导符或结束符错误*/
+#define DUMMY_ERROR			5		/*数据帧为不需处理的*/
+#define TRANS_REQ			6		/*不校验,直接转发的数据*/
 
 
 // 通信协议的字节定义
@@ -68,6 +74,14 @@
 #define BEOF					22	//结束
 #define BCC					23	//校验码
 
+// 费显命令码定义
+#define FX_SOF				0xF5		// 起始码
+#define FX_DISPLAY			0x01		// 操作码,显示费显
+#define FX_DISCLR				0x02		// 操作码,清屏
+#define FX_DISALL				0x03		// 操作码,全屏点亮
+#define FX_LED				0x10		// 操作码,红绿灯控制
+#define FX_EOF				0xFE		// 结束码
+
 
 typedef  struct 
 {
@@ -81,7 +95,7 @@ extern PROTOCOL_BUF	ProtocolBuf[UART_NUM];
 
 void Comm1_Init(uint32_t baudrate);
 void Comm2_Init(uint32_t baudrate);
-void message_pack(uint8_t uart_no, uint8_t msg_type,PROTOCOL_BUF *buf);
+void message_pack(USART_LIST uart_no, uint8_t msg_type,PROTOCOL_BUF *buf);
 void message_send_printf(uint8_t uartNo);
 void message_pack_printf(uint8_t uartNo, uint8_t msg_type);
 void Comm_Proc(void);

@@ -12,7 +12,7 @@
 #include "include.h"
 
 /*初次上电标志*/
-static uint8_t PowerOnFlag = 0;
+//static uint8_t PowerOnFlag = 0;
 
 /******************************************************************************
  * 函数名:	device_detect 
@@ -168,7 +168,8 @@ void Param_Init(void)
 
 	Device_Ctrl_Queue_Init();
 	Device_Stat_Queue_Init();
-	
+
+	#if 0
 	if(PowerOnFlag != (uint8_t)0xAA)
 	{
 		PowerOnFlag = (uint8_t)0xAA;
@@ -187,6 +188,15 @@ void Param_Init(void)
 	{
 		message_pack_printf(PC_UART,VER_PRINT_MSG);	//poweron info, used for debugging
 	}
+	#endif
+
+	for (i_ctrl = BAR_UP;  i_ctrl < DEV_CTRL_NUM; i_ctrl++)
+	{
+		DeviceX_Activate(i_ctrl);	 // 外设全部初始化为无效
+	}
+
+	Delay_Ms(250);
+	message_pack_printf(PC_UART,VER_PRINT_MSG);	//poweron info, used for debugging
 
 	for (i_ctrl = BAR_UP;  i_ctrl < DEV_CTRL_NUM; i_ctrl++)
 	{
@@ -220,7 +230,7 @@ void Param_Init(void)
  * 修改人:
  * 修改日期:
  ******************************************************************************/
-//volatile uint32_t itest = 0;  // 测试时钟是否准确
+volatile uint32_t itest = 0;  // 测试时钟是否准确
 void Init_System(void)
 {	
 	INT_DISABLE();		// 屏蔽所有中断
@@ -231,8 +241,8 @@ void Init_System(void)
 	LED_GPIO_Config();
 	//EXTI_PE4_Config();
 
-	Comm1_Init(115200);	// USART1 配置模式为 115200 8-N-1，中断接收
-	Comm2_Init(115200);	// USART2 配置模式为 115200 8-N-1，中断接收
+	Comm1_Init(9600);	// USART1 配置模式为 115200 8-N-1，中断接收
+	Comm2_Init(9600);	// USART2 配置模式为 115200 8-N-1，中断接收
 
 	W25QXX_Init();		//W25QXX初始化
 	
@@ -248,16 +258,16 @@ void Init_System(void)
 	itest  = system_time_ms;
 	Delay_Ms(100);	// delay 100ms
 	itest  = system_time_ms;
-	Delay_Xms(5);	// delay 100ms
+	LED_Flashing(LED_COM, 60, 3);
 	itest  = system_time_ms;
-	Delay_Xms(5000);	// delay 100ms
+	DelayAndFeedDog(260);
 	itest  = system_time_ms;
 #endif
 
 	/*上电闪烁3次,每次50ms*/
 	LED_Flashing(LED_COM, 60, 3);
 	Param_Init();
-	debug_puts("SPI test: KEY1:Write  KEY0:Read");
+	//debug_puts("SPI test: KEY1:Write  KEY0:Read");
 
 	LED_Set(LED_COM, ON);		//编程指示灯亮
 	ATE_main();

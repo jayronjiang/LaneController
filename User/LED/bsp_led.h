@@ -9,8 +9,8 @@
  */
 
 #define digitalToggle(p,i) {p->ODR ^=i;}
-#define LED1_TOGGLE 		digitalToggle(GPIOB,GPIO_Pin_5)
-#define LED2_TOGGLE 		digitalToggle(GPIOE,GPIO_Pin_5)
+#define LED1_TOGGLE 		digitalToggle(GPIOC,GPIO_Pin_10)
+#define LED2_TOGGLE 		digitalToggle(GPIOC,GPIO_Pin_11)
 
 //#define ON  ENABLE
 //#define OFF DISABLE
@@ -28,14 +28,14 @@
 
 /*带参宏，可以像内联函数一样使用*/
 #define LED1(a)	if (a)	\
-					GPIO_SetBits(GPIOB,GPIO_Pin_5);\
+					GPIO_SetBits(GPIOC,GPIO_Pin_10);\
 					else		\
-					GPIO_ResetBits(GPIOB,GPIO_Pin_5)
+					GPIO_ResetBits(GPIOC,GPIO_Pin_10)
 					
 #define LED2(a)	if (a)	\
-					GPIO_SetBits(GPIOE,GPIO_Pin_5);\
+					GPIO_SetBits(GPIOC,GPIO_Pin_11);\
 					else		\
-					GPIO_ResetBits(GPIOE,GPIO_Pin_5)
+					GPIO_ResetBits(GPIOC,GPIO_Pin_11)
 
 //#define LED2(a)	if (a)	\
 //					GPIO_SetBits(GPIOB,GPIO_Pin_8);\

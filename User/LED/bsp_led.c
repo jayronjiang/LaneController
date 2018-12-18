@@ -30,21 +30,21 @@ void LED_GPIO_Config(void)
 {
   GPIO_InitTypeDef GPIO_InitStructure;
 	
-  RCC_APB2PeriphClockCmd( RCC_APB2Periph_GPIOB, ENABLE); // 使能PC端口时钟  
+  RCC_APB2PeriphClockCmd( RCC_APB2Periph_GPIOC, ENABLE); // 使能PC端口时钟  
 
   // LED1	
-  GPIO_InitStructure.GPIO_Pin = (GPIO_Pin_5);	//选择对应的引脚
+  GPIO_InitStructure.GPIO_Pin = (GPIO_Pin_10);	//选择对应的引脚
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;       
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_Init(GPIOB, &GPIO_InitStructure);  //初始化PC端口
+  GPIO_Init(GPIOC, &GPIO_InitStructure);  //初始化PC端口
 
   // LED2
-  RCC_APB2PeriphClockCmd( RCC_APB2Periph_GPIOE, ENABLE); // 使能PC端口时钟  
+  RCC_APB2PeriphClockCmd( RCC_APB2Periph_GPIOC, ENABLE); // 使能PC端口时钟  
 	
-  GPIO_InitStructure.GPIO_Pin = (GPIO_Pin_5);	//选择对应的引脚
+  GPIO_InitStructure.GPIO_Pin = (GPIO_Pin_11);	//选择对应的引脚
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;       
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_Init(GPIOE, &GPIO_InitStructure);  //初始化PC端口
+  GPIO_Init(GPIOC, &GPIO_InitStructure);  //初始化PC端口
 
   /* 关闭所有LED*/
   LED_Set(LED_1, OFF);

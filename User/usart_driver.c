@@ -73,7 +73,7 @@ int fputc(int ch, FILE *f)
 	}
 	else
 	{
-		pusart = USART3;
+		pusart = USART1;
 	}
 
 
@@ -113,7 +113,7 @@ int fgetc(FILE *f)
 	}
 	else
 	{
-		pusart = USART3;
+		pusart = USART1;
 	}
 	
 	/* 等待串口1输入数据 */

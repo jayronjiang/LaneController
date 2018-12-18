@@ -32,6 +32,7 @@ uint8_t wdt_counter = 0;
  *
  *
  ***********************************************************************************/
+ #if 0
 void Ext_Wdt_Feed(void)
 {
 	// 输出一个高脉冲
@@ -42,6 +43,11 @@ void Ext_Wdt_Feed(void)
 	//__NOP; //会被优化
 	 __ASM ("nop")
     	GPIO_ResetBits(EXT_WDT_GRP,EXT_WDT_PIN);
+}
+#endif
+void Ext_Wdt_Feed(void)
+{
+	 __ASM ("nop");	// 没有外部看门狗
 }
 
 /***********************************************************************************
