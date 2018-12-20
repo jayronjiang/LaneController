@@ -227,7 +227,7 @@ void Init_System(void)
 	/*There are 2 different PreemptionPriorities in the TIM init. */
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_1);
 	Time_Configuration();	//系统时间和延时相关定时器初始化
-	TIM4_PWM_Init(PWM_8KHZ,0);	//TIM4 PWM初始化, Fpwm=72M/9000=8Khz.
+	TIM4_PWM_Init(0xFF,PWM_8KHZ);	//TIM4 PWM初始化, Fpwm=72M/9000=8Khz.
 	
 	LED_GPIO_Config();
 	//EXTI_PE4_Config();
@@ -259,13 +259,13 @@ void Init_System(void)
 	LED_Flashing(LED_COM, 60, 3);
 	Param_Init();
 	debug_puts("SPI test: KEY1:Write  KEY0:Read");
+	
+	/*老化测试子程序,系统将在这里进入老化,不执行后面的*/
+	//TestForLC301();		// 暂时不使用
 
 	LED_Set(LED_COM, ON);		//编程指示灯亮
 	ATE_main();
 	LED_Set(LED_COM, OFF);	
-	
-	/*老化测试子程序,系统将在这里进入老化,不执行后面的*/
-	//TestForLC301();		// 暂时不使用
 
 	INT_ENABLE();
 	Timer_Start();
@@ -275,4 +275,7 @@ void Init_System(void)
 	PCA_Test_SampleVox();   DEBUG_PUTS_("Beep....\n");
 	PCA_Test_SampleVox();   DEBUG_PUTS_("Beep....\n");
 	PCA_Test_SampleVox();   DEBUG_PUTS_("Beep....\n");
+
+	Vox_PlayList_Add( ID_NiHao );
+	Vox_Wait_AllPlayDone();
 }

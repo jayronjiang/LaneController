@@ -63,20 +63,20 @@ void Vox_read_inf_to_current(uint8_t ID)
 
 	SPI_Read_Start(inf_addr);
 
-	IDx = SPI_Get_Byte();
+	IDx = SPI2_ReadWriteByte(0XFF);
 	//DEBUG_ASSERT_( ID==IDx );
 
-	((uint8_t*)&ulCurrentVox_Addr)[0] = 0;
-	((uint8_t*)&ulCurrentVox_Addr)[1] = SPI_Get_Byte();
-	((uint8_t*)&ulCurrentVox_Addr)[2] = SPI_Get_Byte();
-	((uint8_t*)&ulCurrentVox_Addr)[3] = SPI_Get_Byte();
+	((uint8_t*)&ulCurrentVox_Addr)[3] = 0;
+	((uint8_t*)&ulCurrentVox_Addr)[2] = SPI2_ReadWriteByte(0XFF);
+	((uint8_t*)&ulCurrentVox_Addr)[1] = SPI2_ReadWriteByte(0XFF);
+	((uint8_t*)&ulCurrentVox_Addr)[0] = SPI2_ReadWriteByte(0XFF);
 
-	((uint8_t*)&ulCurrentVox_Len)[0] = 0;
-	((uint8_t*)&ulCurrentVox_Len)[1] = SPI_Get_Byte();
-	((uint8_t*)&ulCurrentVox_Len)[2] = SPI_Get_Byte();
-	((uint8_t*)&ulCurrentVox_Len)[3] = SPI_Get_Byte();
+	((uint8_t*)&ulCurrentVox_Len)[3] = 0;
+	((uint8_t*)&ulCurrentVox_Len)[2] = SPI2_ReadWriteByte(0XFF);
+	((uint8_t*)&ulCurrentVox_Len)[1] = SPI2_ReadWriteByte(0XFF);
+	((uint8_t*)&ulCurrentVox_Len)[0] = SPI2_ReadWriteByte(0XFF);
 
-	sum = SPI_Get_Byte();
+	sum = SPI2_ReadWriteByte(0XFF);
 	//DEBUG_ASSERT_( sum==0x0a );
 
 	SPI_Read_End();
@@ -162,7 +162,7 @@ void Vox_Prepare_PlayCode(void)
 	{
 		if( PCA_buf_fill_validate() )
 		{
-			temp = SPI_Get_Byte();	// 从FLASH读一个字节
+			temp = SPI2_ReadWriteByte(0XFF);	// 从FLASH读一个字节
 
 			PCA_buf_fill_code( temp ); // 填入PCA缓冲
 			ulCurrentVox_Len--;	 // 减1，直到0

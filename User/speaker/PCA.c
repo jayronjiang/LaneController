@@ -139,7 +139,7 @@ void PCA_buf_read_code(void)
 	}															  
 	else														 
 	{															 
-		pac_code_ax = 0x80;  /*无效时的默认值：50%duty cycle;	*/
+		pac_code_ax = DUTY_50;  /*无效时的默认值：50%duty cycle;	*/
 
 		//TIM_GenerateEvent(TIM5, TIM_EventSource_Update);
 		TIM_Cmd(TIM4,DISABLE); //   关PCA中断
@@ -164,15 +164,21 @@ void PCA_Test_SampleVox(void)
 
 void TIM4_IRQHandler(void)   //TIM4中断
 {
-	if (TIM_GetITStatus(TIM4, TIM_IT_CC3) != RESET) //检查指定的TIM中断发生与否:TIM 中断源 
+	static uint8_t cnt_over = 0;
+	if (TIM_GetITStatus(TIM4, TIM_IT_Update) != RESET) //检查指定的TIM中断发生与否:TIM 中断源 
 	{
-		TIM_ClearITPendingBit(TIM4, TIM_IT_Update  );  //清除TIMx的中断待处理位:TIM 中断源 
-		pca_over_cnt++;
+		TIM_ClearFlag(TIM4, TIM_FLAG_Update);  //清除TIMx的中断待处理位:TIM 中断源 
+		cnt_over++;
+		if (cnt_over >=5)
+		{
+			cnt_over = 0;
+			pca_over_cnt++;
 		if(pca_over_cnt==0xffff/80)	 LED_Set(LED_COM, OFF);
    		if(pca_over_cnt==0xffff/70)	{LED_Set(LED_COM, ON); pca_over_cnt=0;}
 	
 		PCA_buf_read_code();	 // 把缓冲区的PCM码填入 /
 		TIM_SetCompare3(TIM4,pac_code_ax);	
+		}
 	}
 }
 

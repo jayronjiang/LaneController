@@ -2,8 +2,8 @@
 #define	__PCA_H
 
 
-#define PWM_8KHZ			(8999)
-#define PWM_80KHZ		(899)
+#define PWM_8KHZ			(34)
+#define DUTY_50			(0x80)	// 50%的脉宽值,即0xFF的一半
 
 void PCA_init(void);
 unsigned char PCA_buf_fill_validate(void);

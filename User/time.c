@@ -244,7 +244,17 @@ void Time_NVIC_Configuration(void)
 	// 设置抢占优先级
 	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;	 
 	// 设置子优先级
-	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;	
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 2;	
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+	NVIC_Init(&NVIC_InitStructure);
+
+	/*TIM4溢出中断*/
+	// 设置中断来源
+	NVIC_InitStructure.NVIC_IRQChannel = TIM4_IRQn;	
+	// 设置抢占优先级
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;	 
+	// 设置子优先级
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 2;	
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
 	  
@@ -410,8 +420,9 @@ void TIM2_IRQHandler (void)
 
 //TIM4 CH3 PWM输出设置 PB8
 //PWM输出初始化
-//arr：自动重装值
-//psc：时钟预分频数
+//arr：自动重装值,arr必须为0xFF, 
+// 	      因为PCM的采样值都是以0xFF为最大溢出值作为参考的
+//psc：时钟预分频数, 255*psc = 72M/8K
 void TIM4_PWM_Init(u16 arr,u16 psc)
 {		 					 
 	
@@ -420,17 +431,17 @@ void TIM4_PWM_Init(u16 arr,u16 psc)
 	TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
 	TIM_OCInitTypeDef  TIM_OCInitStructure;
 	
-
-	RCC_APB2PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE); //使能TIMx外设
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE); //使能TIMx外设
  	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);  //使能GPIOB外设时钟使能
 	
  
   //设置该引脚为复用输出功能,输出TIM1 CH1的PWM脉冲波形
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8; //TIM4_CH3
+	//GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8; //TIM4_CH3
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;  //复用功能输出
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_Init(GPIOB, &GPIO_InitStructure); //初始化GPIO
- 
+
 	TIM_TimeBaseStructure.TIM_Period = arr; //设置自动重装载周期值
 	TIM_TimeBaseStructure.TIM_Prescaler =psc; //设置预分频值 不分频
 	TIM_TimeBaseStructure.TIM_ClockDivision = 0; //设置时钟分割:TDTS = Tck_tim
@@ -440,7 +451,7 @@ void TIM4_PWM_Init(u16 arr,u16 psc)
 	 
 	TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM2; //CH3 PWM2模式	
 	TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable; //比较输出使能
-	TIM_OCInitStructure.TIM_Pulse = 0; //设置待装入捕获比较寄存器的脉冲值
+	TIM_OCInitStructure.TIM_Pulse = DUTY_50; //设置50%的脉宽,即开始不发声
 	TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High; //OC1 低电平有效 
 	TIM_OC3Init(TIM4, &TIM_OCInitStructure);  //根据指定的参数初始化外设TIMx
 
@@ -450,9 +461,9 @@ void TIM4_PWM_Init(u16 arr,u16 psc)
 	
 	//TIM_CtrlPWMOutputs(TIM4,ENABLE);	//MOE 主输出使能,高级定时器必须开启这个 
 	TIM_ClearFlag(TIM4, TIM_FLAG_Update);	/* 清除溢出中断标志 */
-	TIM_ITConfig(TIM4,TIM_IT_CC3,ENABLE);
+	//TIM_ITConfig(TIM4,TIM_IT_CC3,ENABLE);
+	TIM_ITConfig(TIM4, TIM_IT_Update, ENABLE);
 	
-	TIM_Cmd(TIM4, DISABLE);  //使能TIMx
-	   										  
+	TIM_Cmd(TIM4, DISABLE);  //使能TIMx  										  
 } 
 
