@@ -338,7 +338,7 @@
               <MiscControls></MiscControls>
               <Define>STM32F10X_HD, USE_STDPERIPH_DRIVER</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\Libraries\CMSIS;..\..\User;..\..\Libraries\FWlib\inc;..\..\User\IIC;..\..\User\Key;..\..\User\LED;..\..\User\motor;..\..\User\SysTick;..\..\User\usart;..\..\User\device_control;..\..\User\extwdt;..\..\User\message_handle;..\..\User\spi;..\..\User\debug;..\..\User\sys;..\..\User\ATE_shell</IncludePath>
+              <IncludePath>..\..\Libraries\CMSIS;..\..\User;..\..\Libraries\FWlib\inc;..\..\User\IIC;..\..\User\Key;..\..\User\LED;..\..\User\motor;..\..\User\SysTick;..\..\User\usart;..\..\User\device_control;..\..\User\extwdt;..\..\User\message_handle;..\..\User\spi;..\..\User\debug;..\..\User\sys;..\..\User\ATE_shell;..\..\User\speaker</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -646,6 +646,26 @@
               <FileName>xmodem.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\User\ATE_shell\xmodem.c</FilePath>
+            </File>
+            <File>
+              <FileName>pt2259.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\User\speaker\pt2259.c</FilePath>
+            </File>
+            <File>
+              <FileName>SpeakVox.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\User\speaker\SpeakVox.c</FilePath>
+            </File>
+            <File>
+              <FileName>PCA.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\User\speaker\PCA.c</FilePath>
+            </File>
+            <File>
+              <FileName>myiic.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\User\speaker\myiic.c</FilePath>
             </File>
           </Files>
         </Group>

@@ -40,11 +40,30 @@ void ATE_Flash_EraseChip(void);
 void ATE_Flash_WriteDown(void);
 void ATE_Flash_ReadUp(void);
 void ATE_Flash_VoxInfoHead(void);
-//void ATE_Play_Sound(void);  
+void ATE_Play_Sound(void);  
 
 ///////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////
+
+// SHELL里面直接读取寄存器数据,不使能接收中断
+void UART_rec_disable(void)
+{
+	USART_Cmd(USART2, DISABLE);
+	USART_ITConfig(SHELL_USART, USART_IT_RXNE, DISABLE);
+	/* 使能串口2空闲中断 */
+	USART_ITConfig(SHELL_USART, USART_IT_IDLE, DISABLE);
+	USART_Cmd(USART2, ENABLE);
+}
+
+void UART_rec_enable(void)
+{
+	USART_Cmd(USART2, DISABLE);
+	USART_ITConfig(SHELL_USART, USART_IT_RXNE, ENABLE);
+	/* 使能串口2空闲中断 */
+	USART_ITConfig(SHELL_USART, USART_IT_IDLE, ENABLE);
+	USART_Cmd(USART2, ENABLE);
+}
 
 // 这个值是不固定的,因为循环里面的语句不能控制
 // 目前内循环是约16个语句, 外循环5个语句, 一共约80个语句
@@ -184,7 +203,7 @@ void ATE_main(void)
 	serial_put_chars("Download data to flash, Type 't' and 'enter'.\n");
 	serial_put_chars("(Please input command in 5s).\n");
 
-	serial_get_cmd(2);	// 5s还是2s?
+	serial_get_cmd(5);	// 5s还是2s?
 	if((cmd_char[0]!='c')&&(cmd_char[0]!='t'))
 	{
 		serial_put_chars("Good Bye!\r\n");
@@ -234,8 +253,15 @@ ATE_MENU:
 		case 'h':		// - 语音信息头
 			ATE_Flash_VoxInfoHead(); goto ATE_MENU;
 			break;        
-		case 'p':	// --play sound    
-			//ATE_Play_Sound(); 
+		case 'p':	// --play sound  
+			// 接收字符使用查询方式,不使能接收中断
+			UART_rec_disable();
+			// 播放声音需要打开PWM中断,因此开中断.
+			INT_ENABLE();
+			ATE_Play_Sound(); 
+			// 播放完毕后恢复现场
+			UART_rec_enable();
+			INT_DISABLE();
 			goto ATE_MENU; 
 			break;
 		case 'v':	// --version    
@@ -414,10 +440,9 @@ void ATE_Flash_VoxInfoHead(void)
 }
  
 ///////////////////////////////////	 /////////////////////
-#if 0
 void ATE_Play_Sound()
 {
-	unsigned char num, i;
+	uint8_t num, i;
 
 PLAY_MENU:
 	serial_put_chars("\n");
@@ -466,6 +491,5 @@ PLAY_MENU:
 		}  // end if 'cmd_char is digit'
 	}
 }
-#endif
 ///////////////////////////////////	 /////////////////////
 ///////////////////////////////////	 /////////////////////

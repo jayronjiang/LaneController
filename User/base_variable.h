@@ -64,8 +64,8 @@ typedef unsigned char bool;		// 定义bool类型，只使用TRUE和FALSE 2个值
 //#define TFACT	9	// 时钟折算因子, 发现开发板时钟一直是8M ,原因不明
 #define TFACT	1
 
-#define PBout(n)   BIT_ADDR(GPIOB_ODR_Addr,n)  //输出 
-#define PBin(n)    BIT_ADDR(GPIOB_IDR_Addr,n)  //输入
+//#define PBout(n)   BIT_ADDR(GPIOB_ODR_Addr,n)  //输出 
+//#define PBin(n)    BIT_ADDR(GPIOB_IDR_Addr,n)  //输入
 
 #endif
 

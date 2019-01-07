@@ -1,7 +1,7 @@
 #ifndef __MESSAGE_HANDLE_H
 #define	__MESSAGE_HANDLE_H
 
-#define PC_UART			UART1_COM	//定义与PC通信的为哪个串口?
+#define PC_UART			UART2_COM	//定义与PC通信的为哪个串口?
 #define FEE_UART			UART2_COM	//定义与费显和声音的串口
 #define TRANS_UART		UART2_COM	//定义透传的串口
 

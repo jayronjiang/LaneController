@@ -25,6 +25,12 @@
 #include "ATE_Shell.h"
 #include "test.h"
 #include "debug.h"
+#include "PCA.h"
+#include "SpeakVox.h"
+#include "myiic.h"
+#include "pt2259.h"
+#include "stm32f10x_dac.h"
+//#include "dac.h"
 
 #endif /* __INCLUDE_H */
 

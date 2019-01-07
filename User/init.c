@@ -237,14 +237,17 @@ void Init_System(void)
 	/*There are 2 different PreemptionPriorities in the TIM init. */
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_1);
 	Time_Configuration();	//系统时间和延时相关定时器初始化
+	TIM4_PWM_Init(0xFF,PWM_8KHZ);	//TIM4 PWM初始化, Fpwm=72M/9000=8Khz.
 	
 	LED_GPIO_Config();
 	//EXTI_PE4_Config();
 
-	Comm1_Init(9600);	// USART1 配置模式为 115200 8-N-1，中断接收
+	Comm1_Init(115200);	// USART1 配置模式为 115200 8-N-1，中断接收
 	Comm2_Init(9600);	// USART2 配置模式为 115200 8-N-1，中断接收
 
 	W25QXX_Init();		//W25QXX初始化
+	PT2259_Init();		//PT	2259初始化
+	Dac_Init();			// DAC初始化
 	
 	/*滴答定时器初始化，1ms中断周期*/
 	/* 这个定时器用于驱动整个循环运行，放在初始化的最后*/
@@ -278,5 +281,21 @@ void Init_System(void)
 
 	INT_ENABLE();
 	Timer_Start();
+	SysTick_start();
+
+
+	/* 打开PT2259, 并禁止静音*/
+	PT2259_Config(CHIP_CLEAR);
+ 	PT2259_Config(MUTE_OFF);	
+
+	// 用内置的语音样本测试PCA
+	NS4160_AB_type();
+	PCA_Test_SampleVox();   DEBUG_PUTS_("Beep....\n");
+	PCA_Test_SampleVox();   DEBUG_PUTS_("Beep....\n");
+	PCA_Test_SampleVox();   DEBUG_PUTS_("Beep....\n");
+
+	Vox_PlayList_Add( ID_NiHao );
+	Vox_Wait_AllPlayDone();
+	NS4160_Disable();
 	SysTick_start();
 }
