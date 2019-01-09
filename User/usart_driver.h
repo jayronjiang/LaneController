@@ -15,6 +15,8 @@ typedef enum
 #define UART_RXBUF_SIZE		64		//接收缓冲的大小
 #define UART_TXBUF_SIZE		64		//发送缓冲的大小
 
+#define PC_USART_NUM		2		// 可以连接几个工控机?
+
 typedef struct 
 {
 	uint8_t TxBuf[UART_TXBUF_SIZE];
@@ -28,6 +30,7 @@ typedef struct
 
 extern  UART_BUF UARTBuf[UART_NUM];;
 extern uint8_t uart_sel;
+extern const USART_LIST pc_com[PC_USART_NUM];
 
 int UART_fputc(int ch);
 int  UART_fgetc(void);

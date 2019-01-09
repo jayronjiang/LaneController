@@ -1,9 +1,11 @@
 #ifndef __MESSAGE_HANDLE_H
 #define	__MESSAGE_HANDLE_H
 
-#define PC_UART			UART1_COM	//定义与PC通信的为哪个串口?
-#define FEE_UART			UART2_COM	//定义与费显和声音的串口
-#define TRANS_UART		UART2_COM	//定义透传的串口
+/*自助收费和人工收费工控机对于车控器来说是一样的*/
+#define PC1_UART			UART1_COM	//定义与第一个PC通信的为哪个串口?
+#define PC2_UART			UART2_COM	//定义与第二个PC通信的为哪个串口?
+#define FEE_UART			UART1_COM	//定义与费显和声音的串口
+#define TRANS_UART		UART1_COM	//定义透传的串口
 
 // 位定义
 #define MSG_SOF			0x02		// 信息的开始
@@ -40,11 +42,11 @@
 #define LOCAL_ADD			('1')		//0x31
 
 #define ERR_OK				0		/*校验OK*/
-#define SITEID_ERROR		1		/*本地地址不对*/
-#define LENGTH_ERROR		2		/*包长度不对*/
+#define SITEID_ERROR			1		/*本地地址不对*/
+#define LENGTH_ERROR			2		/*包长度不对*/
 #define CRC_ERROR			3		/*CRC校验错误*/
 #define SOF_ERROR			4		/*前导符或结束符错误*/
-#define DUMMY_ERROR			5		/*数据帧为不需处理的*/
+#define DUMMY_ERROR			5		/*数据帧为不需进一步处理的*/
 #define TRANS_REQ			6		/*不校验,直接转发的数据*/
 
 
@@ -96,8 +98,8 @@ extern PROTOCOL_BUF	ProtocolBuf[UART_NUM];
 void Comm1_Init(uint32_t baudrate);
 void Comm2_Init(uint32_t baudrate);
 void message_pack(USART_LIST uart_no, uint8_t msg_type,PROTOCOL_BUF *buf);
-void message_send_printf(uint8_t uartNo);
-void message_pack_printf(uint8_t uartNo, uint8_t msg_type);
+void message_send_printf(USART_LIST uartNo);
+void message_pack_printf(USART_LIST uartNo, uint8_t msg_type);
 void Comm_Proc(void);
 
 #endif /* __MESSAGE_HANDLE_H */

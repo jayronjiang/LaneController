@@ -12,8 +12,8 @@
 UART_BUF	 UARTBuf[UART_NUM];
 
 /* 由于printf有缺陷, 这个变量没有实质使用*/
-USART_LIST uart_sel = PC_UART; // 为了重定向到3个串口,定义一个选择变量.
-
+USART_LIST uart_sel = PC1_UART; // 为了重定向到3个串口,定义一个选择变量.
+const USART_LIST pc_com[PC_USART_NUM] = {PC1_UART,PC2_UART};
 
 /******************************************************************************
  * 函数名:	UARTProcessTickEvents 

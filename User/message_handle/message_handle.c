@@ -16,13 +16,12 @@ const uint8_t VerInfo[]="LC-301-V4.1-181017";
 /*定义通信缓冲区*/
 PROTOCOL_BUF ProtocolBuf[UART_NUM];
 static uint8_t SpkBuf[COM_CTRL_LENTH];	// 用来存储上面发来的信息，主要是用于语音报价
-//static USART_LIST trans_src = UART1_COM;
 
 /******************************************************************************
  * 函数名:	message_unpack 
  * 描述: 对收到的信息按照规定的协议进行解包,提取。
  *
- * 输入参数: 
+ * 输入参数: uart_no, 目标串口, buf,源缓存
  * 输出参数: 
  * 返回值: 
  * 
@@ -33,7 +32,7 @@ static uint8_t SpkBuf[COM_CTRL_LENTH];	// 用来存储上面发来的信息，主要是用于语音
  * 修改人:
  * 修改日期:
  ******************************************************************************/
-static uint8_t message_unpack(PROTOCOL_BUF *buf)
+static uint8_t message_unpack(USART_LIST uart_no,PROTOCOL_BUF *buf)
 {
 	uint8_t *rx_buf;
 	uint8_t  i = 0;
@@ -55,8 +54,8 @@ static uint8_t message_unpack(PROTOCOL_BUF *buf)
 	if ((rx_buf[COM_T]=='C')&&(rx_buf[CTRL_T]=='V'))
 	{
 		err = DUMMY_ERROR;
-		message_pack(PC_UART, VER_PRINT_MSG,buf);
-		//message_send_printf(PC_UART, VER_PRINT_MSG);
+		message_pack(uart_no, VER_PRINT_MSG,buf);
+		//message_send_printf(PC1_UART, VER_PRINT_MSG);
 		return err;
 	}
 
@@ -64,7 +63,7 @@ static uint8_t message_unpack(PROTOCOL_BUF *buf)
 	if ((rx_buf[COM_T]=='C')&&(rx_buf[CTRL_T]=='D'))
 	{
 		err = DUMMY_ERROR;
-		message_pack(PC_UART, MEM_DUMP_MSG,buf);
+		message_pack(uart_no, MEM_DUMP_MSG,buf);
 		//message_send_printf(PC_UART, MEM_DUMP_MSG);
 		return err;
 	}
@@ -83,7 +82,7 @@ static uint8_t message_unpack(PROTOCOL_BUF *buf)
 	/*回复之前先更新外设状态*/
 	detect_ALG_TTL_working();
 	/* 信息正常,先对上位机PC进行回复*/
-	message_pack(PC_UART, B_RES_MSG,buf);
+	message_pack(uart_no, B_RES_MSG,buf);
 
 	/* 读取有用的控制信息*/
 	/* 控制字节1:	*/
@@ -198,6 +197,7 @@ static uint8_t message_check(PROTOCOL_BUF *buf)
 			 }
 			 else
 			 {
+			 	/*只有操作码有问题，除操作码以外的其它命令都直接转发*/
 			 	err = TRANS_REQ;	// 直接转发
 			 }
 		}
@@ -213,7 +213,7 @@ static uint8_t message_check(PROTOCOL_BUF *buf)
  * 函数名:	message_process 
  * 描述: 信息处理函数, 对收到的信息不同情况进行不同处理.
  *
- * 输入参数: 
+ * 输入参数: seq, 表明是第几个串口, buf,串口对应的buf
  * 输出参数: 
  * 返回值: 
  * 
@@ -224,16 +224,17 @@ static uint8_t message_check(PROTOCOL_BUF *buf)
  * 修改人:
  * 修改日期:
  ******************************************************************************/
-static uint8_t message_process(PROTOCOL_BUF *buf)
+static uint8_t message_process(USART_LIST uart_no)
 {
 	uint8_t err = 0;
+	PROTOCOL_BUF *sbuf = &ProtocolBuf[uart_no]; // source buf
 
-	err = message_check(buf);
+	err = message_check(sbuf);
 
 	if ( err == ERR_OK)
 	{
 		/*如果不是控制命令就不进入后面的执行函数*/
-		err = message_unpack(buf);
+		err = message_unpack(uart_no, sbuf);
 	}
 	else if ((err == SITEID_ERROR) ||(err == DUMMY_ERROR)||(err == TRANS_REQ))
 	{
@@ -242,7 +243,7 @@ static uint8_t message_process(PROTOCOL_BUF *buf)
 	else 
 	{
 		// 如果是错误的信息处理
-		message_pack(PC_UART, ERR_RES_MSG,buf);
+		message_pack(uart_no, ERR_RES_MSG,sbuf);
 	}
 
 	return err;
@@ -305,7 +306,7 @@ void Comm1_Init(uint32_t baudrate)
  * 函数名:	message_pack 
  * 描述: 信息的打包,形成协议格式数据
  *         		
- * 输入参数: 
+ * 输入参数: uart_no, 目标输出串口, buf，数据处理串口
  * 输出参数: 
  * 返回值: 
  * 
@@ -318,6 +319,7 @@ void Comm1_Init(uint32_t baudrate)
  ******************************************************************************/
 void message_pack(USART_LIST uart_no, uint8_t msg_type,PROTOCOL_BUF *buf)
 {
+	/*取得目标串口对应的发送缓存*/
 	uint8_t *pbuf = ProtocolBuf[uart_no].pTxBuf;	//buf->pTxBuf;
 	//uint8_t *prx_buf = buf->pRxBuf;
 	uint8_t len = 0;
@@ -536,9 +538,9 @@ void message_pack(USART_LIST uart_no, uint8_t msg_type,PROTOCOL_BUF *buf)
 
 	/* 透传,直接拷贝*/
 	case TRANS_MSG:
-		for (len = 0; len < ProtocolBuf[PC_UART].RxLen; i++)
+		for (len = 0; len < buf->RxLen; i++)
 		{
-			pbuf[len] = ProtocolBuf[PC_UART].pRxBuf[len];
+			pbuf[len] = buf->pRxBuf[len];
 			len++;
 		}
 		break;
@@ -566,7 +568,6 @@ void message_pack(USART_LIST uart_no, uint8_t msg_type,PROTOCOL_BUF *buf)
 		pbuf[len++] = '8';
 		pbuf[len++] = '8';
 		
-
 		pbuf[len++] = MSG_EOF;
 		pbuf[len++] = 0;
 		break;
@@ -720,7 +721,7 @@ void message_pack(USART_LIST uart_no, uint8_t msg_type,PROTOCOL_BUF *buf)
  * 描述: 信息的发送,把缓存区的数据发送至串口
  * 		这是阻塞型的发送,发送时不能干其它任务.
  *
- * 输入参数: 
+ * 输入参数:  把uartNo对应的发送缓存数据发送到uartNo口中
  * 输出参数: 
  * 返回值: 
  * 
@@ -784,7 +785,7 @@ void message_send_printf(USART_LIST uartNo)
  * 修改人:
  * 修改日期:
  ******************************************************************************/
-void message_pack_printf(uint8_t uartNo, uint8_t msg_type)
+void message_pack_printf(USART_LIST uartNo, uint8_t msg_type)
 {
 	uint16_t i = 0;
 	uint8_t ch = 0;
@@ -844,36 +845,38 @@ void message_pack_printf(uint8_t uartNo, uint8_t msg_type)
  ******************************************************************************/
 void Comm_Proc(void)
 {
-	USART_LIST USARTX = PC_UART;
 	uint8_t err = ERR_OK;
+	USART_LIST i = PC1_UART;
 
-	if (UARTBuf[USARTX].RecFlag)		                      //RS485口有数据
+    for (i = pc_com[0]; i <= pc_com[PC_USART_NUM-1]; i++)
+    {
+	if (UARTBuf[i].RecFlag)		                      //RS485口有数据
 	{	
 		#ifdef DEBUG_EN
-	  		//printf("%s",UARTBuf[USARTX].RxBuf);    //将接受到的数据直接返回打印
+	  		//printf("%s",UARTBuf[i].RxBuf);    //将接受到的数据直接返回打印
 	  	#endif
-		
-		ProtocolBuf[USARTX].pTxBuf = UARTBuf[USARTX].TxBuf;         //地址置换
-		ProtocolBuf[USARTX].pRxBuf = UARTBuf[USARTX].RxBuf;
-		ProtocolBuf[USARTX].RxLen = UARTBuf[USARTX].RxLen;
-		ProtocolBuf[USARTX].TxLen = 0;
-		UARTBuf[USARTX].RxLen = 0;		//已经被读取到ProtocolBuf0.RxLen, 尽快清0
 
-		err = message_process(&ProtocolBuf[USARTX]);		//通信协议处理
+		UARTBuf[i].RecFlag = 0;		//接收数据已处理，清除相关标志
+		ProtocolBuf[i].pTxBuf = UARTBuf[i].TxBuf;         //地址置换
+		ProtocolBuf[i].pRxBuf = UARTBuf[i].RxBuf;
+		ProtocolBuf[i].RxLen = UARTBuf[i].RxLen;
+		ProtocolBuf[i].TxLen = 0;
+		UARTBuf[i].RxLen = 0;		//已经被读取到ProtocolBuf0.RxLen, 尽快清0
+
+		err = message_process(i);		//通信协议处理
 		if (err == TRANS_REQ)							// 需要透传的
 		{
 			//trans_src = USARTX;	// 得到透传口
 			message_pack_printf(TRANS_UART, TRANS_MSG);
 		}
 
-		UARTBuf[USARTX].TxLen = ProtocolBuf[USARTX].TxLen;  //置换回来，处理物理层数据
-		if(UARTBuf[USARTX].TxLen >0)
+		UARTBuf[i].TxLen = ProtocolBuf[i].TxLen;  //置换回来，处理物理层数据
+		if(UARTBuf[i].TxLen >0)
 		{
 			/*回复B/C信息给上位机*/
-			message_send_printf(PC_UART);
+			message_send_printf(i);
 		}
 		Delay_Ms(5);				// 稍微有点延时,可以不要
-		UARTBuf[USARTX].RecFlag = 0;		//接收数据已处理，清除相关标志
 
 		/*放在括号内,只有收到新的信息才操作*/
 		if (err == ERR_OK)
@@ -881,5 +884,6 @@ void Comm_Proc(void)
 			params_modify_deal();		//后续的数据改变处理
 		}
 	}
+    }
 }
 /*********************************************END OF FILE**********************/

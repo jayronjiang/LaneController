@@ -196,7 +196,7 @@ void Param_Init(void)
 	}
 
 	Delay_Ms(250);
-	message_pack_printf(PC_UART,VER_PRINT_MSG);	//poweron info, used for debugging
+	message_pack_printf(PC1_UART,VER_PRINT_MSG);	//poweron info, used for debugging
 
 	for (i_ctrl = BAR_UP;  i_ctrl < DEV_CTRL_NUM; i_ctrl++)
 	{
