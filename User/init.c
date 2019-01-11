@@ -242,12 +242,10 @@ void Init_System(void)
 	LED_GPIO_Config();
 	//EXTI_PE4_Config();
 
-	Comm1_Init(115200);	// USART1 配置模式为 115200 8-N-1，中断接收
+	Comm1_Init(9600);	// USART1 配置模式为 115200 8-N-1，中断接收
 	Comm2_Init(9600);	// USART2 配置模式为 115200 8-N-1，中断接收
 
 	W25QXX_Init();		//W25QXX初始化
-	PT2259_Init();		//PT	2259初始化
-	Dac_Init();			// DAC初始化
 	
 	/*滴答定时器初始化，1ms中断周期*/
 	/* 这个定时器用于驱动整个循环运行，放在初始化的最后*/
@@ -265,7 +263,34 @@ void Init_System(void)
 	itest  = system_time_ms;
 	DelayAndFeedDog(260);
 	itest  = system_time_ms;
+
+	LED_Set(LED_RUN, OFF); 	// 开始通信指示
+	Delay_Us(10);
+	LED_Set(LED_RUN, ON); 	// 开始通信指示
+	LED_Set(LED_RUN, OFF);
+	LED_Set(LED_RUN, ON);
+	LED_Set(LED_RUN, ON); 	// 开始通信指示
+	LED_Set(LED_RUN, OFF);
+	LED_Set(LED_RUN, OFF);
+	LED_Set(LED_RUN, ON); 	// 开始通信指示
+	LED_Set(LED_RUN, OFF);
+	LED_Set(LED_RUN, ON);
+	Delay_Us(10);
+	LED_Set(LED_RUN, OFF); 	// 开始通信指示
+	Delay_Us(10);
+	LED_Set(LED_RUN, ON); 	// 开始通信指示
+	Delay_Us(10);
+	LED_Set(LED_RUN, OFF); 	// 开始通信指示
+	Delay_Us(10);
+	LED_Set(LED_RUN, ON); 	// 开始通信指示
+	Delay_Us(5);
+	LED_Set(LED_RUN, OFF); 	// 开始通信指示LED_Set(LED_RUN, ON); 	// 开始通信指示
+	Delay_Us(15);
+	LED_Set(LED_RUN, ON); 	// 开始通信指示
+	Delay_Ms(5);
+	LED_Set(LED_RUN, OFF); 	// 开始通信指示
 #endif
+	
 
 	/*上电闪烁3次,每次50ms*/
 	LED_Flashing(LED_COM, 60, 3);
@@ -274,7 +299,10 @@ void Init_System(void)
 
 	LED_Set(LED_COM, ON);		//编程指示灯亮
 	ATE_main();
-	LED_Set(LED_COM, OFF);	
+	LED_Set(LED_COM, OFF);
+
+	Speaker_Init();		//PT	2259初始化
+	Dac_Init();			// DAC初始化
 	
 	/*老化测试子程序,系统将在这里进入老化,不执行后面的*/
 	//TestForLC301();		// 暂时不使用
@@ -283,19 +311,5 @@ void Init_System(void)
 	Timer_Start();
 	SysTick_start();
 
-
-	/* 打开PT2259, 并禁止静音*/
-	PT2259_Config(CHIP_CLEAR);
- 	PT2259_Config(MUTE_OFF);	
-
-	// 用内置的语音样本测试PCA
-	NS4160_AB_type();
-	PCA_Test_SampleVox();   DEBUG_PUTS_("Beep....\n");
-	PCA_Test_SampleVox();   DEBUG_PUTS_("Beep....\n");
-	PCA_Test_SampleVox();   DEBUG_PUTS_("Beep....\n");
-
-	Vox_PlayList_Add( ID_NiHao );
-	Vox_Wait_AllPlayDone();
-	NS4160_Disable();
-	SysTick_start();
+	Speaker_Test();
 }

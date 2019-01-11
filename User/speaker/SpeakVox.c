@@ -100,10 +100,9 @@ void Vox_read_inf_to_current(uint8_t ID)
 void Vox_PlayList_Add(uint8_t ID)
 {
 	//DEBUG_ASSERT_( VoxListPutPtr<sizeof(VoxPlayList) );
-
 	VoxPlayList[VoxListPutPtr] = ID;
 	VoxListPutPtr++;
-	NS4160_AB_type();
+	NS4160_D_type();
 }
 //
 uint8_t Vox_PlayList_Get(void)
@@ -191,6 +190,7 @@ void Vox_Wait_AllPlayDone(void)
 		Vox_Prepare_PlayCode();	
 	}
 		SPI_Read_End();
+		NS4160_Disable();
 }
 
 /*****************************************************************************/

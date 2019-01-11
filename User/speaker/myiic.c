@@ -5,63 +5,135 @@
   * @date    17-Dec-2018
   *
   * @brief   I2C驱动文件.
+  *	只使用了IIC_Init/IIC_Start/IIC_Stop/IIC_Wait_Ack/IIC_Send_Byte
   *
   ******************************************************************************
   */
 #include "include.h"
  
-//初始化IIC
+/***********************************************************************************
+ * 函数名:	IIC_Init 
+ * 描述: 
+ *           	-初始化I2C
+ *
+ * 输入参数: 
+ * 输出参数: 
+ * 返回值: 
+ * 
+ * 作者:Jerry
+ * 创建日期:20181109
+ * 
+ *------------------------
+ * 修改人:
+ * 修改日期:
+ *
+ *
+ ***********************************************************************************/
 void IIC_Init(void)
 {					     
 	GPIO_InitTypeDef GPIO_InitStructure;
-	RCC_APB2PeriphClockCmd(	RCC_APB2Periph_GPIOB, ENABLE );	//使能GPIOB时钟
+	RCC_APB2PeriphClockCmd(I2C_RCC_PORT, ENABLE );	//使能GPIOB时钟
 	   
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10|GPIO_Pin_11;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP ;   //推挽输出
+	GPIO_InitStructure.GPIO_Pin = I2C_SCL_PIN|I2C_SDA_PIN;
+	//GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP ;   //推挽输出
+	/* 开漏输出,从机在ACK时要拉低总线,此时会有一个或的操作*/
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_OD ;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-	GPIO_Init(GPIOB, &GPIO_InitStructure);
-	GPIO_SetBits(GPIOB,GPIO_Pin_10|GPIO_Pin_11); 	//PB6,PB7 输出高
+	GPIO_Init(I2C_GPIO_PORT, &GPIO_InitStructure);
+
+	/*产生一个stop, 释放总线*/
+	SDA_OUT();     //sda线输出
+	IIC_Stop();	// 注意这里开机时会产生一个停止脉冲
 }
-//产生IIC起始信号
+
+/***********************************************************************************
+ * 函数名:	IIC_Start 
+ * 描述: 
+ *           	-启动I2C
+ *
+ * 输入参数: 
+ * 输出参数: 
+ * 返回值: 
+ * 
+ * 作者:Jerry
+ * 创建日期:20181109
+ * 
+ *------------------------
+ * 修改人:
+ * 修改日期:
+ *
+ *
+ ***********************************************************************************/
 void IIC_Start(void)
 {
-	SDA_OUT();     //sda线输出
-	IIC_SDA=1;	  	  
-	IIC_SCL=1;
-	//delay_us(4);
-	DELAY_4uS();
- 	IIC_SDA=0;//START:when CLK is high,DATA change form high to low 
-	//delay_us(4);
-	DELAY_4uS();
-	IIC_SCL=0;//钳住I2C总线，准备发送或接收数据 
-}	  
-//产生IIC停止信号
+	I2C_SDA_1();
+	I2C_SCL_1();
+	DELAY_2uS();
+ 	I2C_SDA_0();		//START:when CLK is high,DATA change form high to low 
+	DELAY_2uS();
+	I2C_SCL_0();		//钳住I2C总线，准备发送或接收数据 
+	DELAY_2uS();
+}
+
+/***********************************************************************************
+ * 函数名:	IIC_Stop 
+ * 描述: 
+ *           	-停止I2C
+ *
+ * 输入参数: 
+ * 输出参数: 
+ * 返回值: 
+ * 
+ * 作者:Jerry
+ * 创建日期:20190111
+ * 
+ *------------------------
+ * 修改人:
+ * 修改日期:
+ *
+ *
+ ***********************************************************************************/
 void IIC_Stop(void)
 {
-	SDA_OUT();//sda线输出
-	IIC_SCL=0;
-	IIC_SDA=0;//STOP:when CLK is high DATA change form low to high
- 	//delay_us(4);
- 	DELAY_4uS();
-	IIC_SCL=1; 
-	IIC_SDA=1;//发送I2C总线结束信号
-	//delay_us(4);	
-	DELAY_4uS();
+	//SDA_OUT();	//sda线输出
+	I2C_SCL_0();
+	I2C_SDA_0();	//STOP:when CLK is high DATA change form low to high
+	I2C_SCL_1();
+	DELAY_2uS();
+	I2C_SDA_1();	//发送I2C总线结束信号
 }
-//等待应答信号到来
-//返回值：1，接收应答失败
-//        0，接收应答成功
+
+/***********************************************************************************
+ * 函数名:	IIC_Wait_Ack 
+ * 描述: 
+ *           	-等待ACK，当主机发送完一个字节后，需要等待一个ACK信号
+ *
+ * 输入参数: 
+ * 输出参数: 1，接收应答失败,0，接收应答成功
+ * 返回值: 
+ * 
+ * 作者:Jerry
+ * 创建日期:20190111
+ * 
+ *------------------------
+ * 修改人:
+ * 修改日期:
+ *
+ *
+ ***********************************************************************************/    
 u8 IIC_Wait_Ack(void)
 {
 	u8 ucErrTime=0;
-	SDA_IN();      //SDA设置为输入  
-	IIC_SDA=1;
-	//delay_us(1);
-	DELAY_1uS();
-	IIC_SCL=1;
-	//delay_us(1);	
-	DELAY_1uS();
-	while(READ_SDA)
+	/*这里不能设置为输入,因为下面主机马上要拉高,会冲突*/
+	/*实际调试发现只要设置为SDA_IN就会卡死,不管语句放哪里*/
+	/*原因应该是设为输入后,还需要对上下拉等进行配置*/
+	/*然后还要进行一次GPIO_Init*/
+	I2C_SDA_1();
+	//SDA_IN();      //SDA设置为输入,准备读  
+	DELAY_2uS();
+	I2C_SCL_1();
+	DELAY_2uS();
+	while(I2C_SDA_READ())
 	{
 		ucErrTime++;
 		if(ucErrTime>250)
@@ -70,82 +142,154 @@ u8 IIC_Wait_Ack(void)
 			return 1;
 		}
 	}
-	IIC_SCL=0;//时钟输出0 	   
+	I2C_SCL_0();	//时钟输出0 	 
+	DELAY_2uS();
 	return 0;  
 } 
-//产生ACK应答
+/***********************************************************************************
+ * 函数名:	IIC_Ack 
+ * 描述: 
+ *           	-产生一个ACK，做从机时使用
+ *
+ * 输入参数: 
+ * 输出参数: 
+ * 返回值: 
+ * 
+ * 作者:Jerry
+ * 创建日期:20190111
+ * 
+ *------------------------
+ * 修改人:
+ * 修改日期:
+ *
+ *
+ ***********************************************************************************/
 void IIC_Ack(void)
 {
-	IIC_SCL=0;
-	SDA_OUT();
-	IIC_SDA=0;
-	//delay_us(2);
+	//SDA_OUT();
+	I2C_SDA_0();
 	DELAY_2uS();
-	IIC_SCL=1;
-	//delay_us(2);
+	I2C_SCL_1();		/* CPU产生1个时钟 */
 	DELAY_2uS();
-	IIC_SCL=0;
+	I2C_SCL_0();
+	DELAY_2uS();
+	I2C_SDA_1();		/* CPU释放SDA总线 */
 }
-//不产生ACK应答		    
+
+/***********************************************************************************
+ * 函数名:	IIC_Ack 
+ * 描述: 
+ *           	-不产生ACK，做从机时使用
+ *
+ * 输入参数: 
+ * 输出参数: 
+ * 返回值: 
+ * 
+ * 作者:Jerry
+ * 创建日期:20190111
+ * 
+ *------------------------
+ * 修改人:
+ * 修改日期:
+ *
+ *
+ ***********************************************************************************/
 void IIC_NAck(void)
 {
-	IIC_SCL=0;
-	SDA_OUT();
-	IIC_SDA=1;
-	//delay_us(2);
+	//SDA_OUT(); 
+	I2C_SDA_1();
 	DELAY_2uS();
-	IIC_SCL=1;
-	//delay_us(2);
+	I2C_SCL_1();		/* CPU产生1个时钟 */
 	DELAY_2uS();
-	IIC_SCL=0;
+	I2C_SCL_0();
+	DELAY_2uS(); 
 }					 				     
-//IIC发送一个字节
-//返回从机有无应答
-//1，有应答
-//0，无应答			  
+
+/***********************************************************************************
+ * 函数名:	IIC_Send_Byte 
+ * 描述: 
+ *           	-发送一个字节
+ *
+ * 输入参数: 
+ * 输出参数: 1，从机有应答,0，从机无应答
+ * 返回值: 
+ * 
+ * 作者:Jerry
+ * 创建日期:20190111
+ * 
+ *------------------------
+ * 修改人:
+ * 修改日期:
+ *
+ *
+ ***********************************************************************************/
 void IIC_Send_Byte(u8 txd)
 {                        
-    u8 t;   
-	SDA_OUT(); 	    
-    IIC_SCL=0;//拉低时钟开始数据传输
-    for(t=0;t<8;t++)
-    {              
-        //IIC_SDA=(txd&0x80)>>7;
-		if((txd&0x80)>>7)
-			IIC_SDA=1;
+    	u8 i;   
+	//SDA_OUT(); 	    
+	for(i=0;i<8;i++)
+	{              
+		if( txd & 0x80 )
+		{
+			I2C_SDA_1();	
+		}
 		else
-			IIC_SDA=0;
-		txd<<=1; 	  
-		//delay_us(2);   //对TEA5767这三个延时都是必须的
+		{
+			I2C_SDA_0();	
+		}	  
 		DELAY_2uS();
-		IIC_SCL=1;
-		//delay_us(2); 
+		I2C_SCL_1();		
 		DELAY_2uS();
-		IIC_SCL=0;	
-		//delay_us(2);
+		I2C_SCL_0();
+		txd<<=1;
 		DELAY_2uS();
     }	 
 } 	    
-//读1个字节，ack=1时，发送ACK，ack=0，发送nACK   
+
+/***********************************************************************************
+ * 函数名:	IIC_Read_Byte 
+ * 描述: 
+ *           	-读1个字节
+ *		这里没有使用,用的时候要注意SDA_IN();参考IIC_Wait_Ack
+ *		因为是开漏输出，原则上可以直接删掉
+ *	
+ * 输入参数: 
+ * 输出参数: ack=1时，发送ACK，ack=0，发送nACK   
+ * 返回值: 
+ * 
+ * 作者:Jerry
+ * 创建日期:20190111
+ * 
+ *------------------------
+ * 修改人:
+ * 修改日期:
+ *
+ *
+ ***********************************************************************************/
 u8 IIC_Read_Byte(unsigned char ack)
 {
 	unsigned char i,receive=0;
-	SDA_IN();//SDA设置为输入
-    for(i=0;i<8;i++ )
+	//SDA_IN();//SDA设置为输入
+	for(i = 0; i < 8; i++)
 	{
-        IIC_SCL=0; 
-        //delay_us(2);
-        DELAY_2uS();
-		IIC_SCL=1;
-        receive<<=1;
-        if(READ_SDA)receive++;   
-		//delay_us(1); 
-		DELAY_1uS();
-    }					 
-    if (!ack)
-        IIC_NAck();//发送nACK
-    else
-        IIC_Ack(); //发送ACK   
-    return receive;
+		receive<<=1;
+		I2C_SCL_1();
+		DELAY_2uS();
+		if(I2C_SDA_READ())
+		{
+			receive++;
+		}
+		I2C_SCL_0();
+		DELAY_2uS();
+	}					 
+	if (!ack)
+	{
+		IIC_NAck();	//发送nACK
+	}
+	else
+	{
+		IIC_Ack(); //发送ACK   
+	}
+	return receive;
 }
 

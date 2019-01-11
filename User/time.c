@@ -37,22 +37,24 @@ void Delay_Ms(uint32_t myMs)
 	while(myMs--)
 	{
 		// 汇编为9个语句, 因此为72M/9 = 8K.
-		i=8000/TFACT;
+		i=8000;
 		while(i--);
 	}
 }
 
-
+#if 1
+// 不是很准确
+// 主要是while 占用语句多，i=8/TFACT微不足道
 void Delay_Us(uint32_t myUs)
 {
 	uint32_t i;
 	while(myUs--)
 	{
-		// 汇编为9个语句, 因此为72M/9 = 8K.
-		i=8/TFACT;
+		i=6;
 		while(i--);
 	}
 }
+#endif
 
 uint16_t go_onflag;
 /******************************************************************************

@@ -78,7 +78,7 @@ const uint8_t PCM_Warn [PCM_SAMPLES]= {
  // 环形缓冲区操作（缓存用于填充PCA的数据）
  //
  /////////////////////////////////////////////
-uint8_t pca_code_buf[16] ;	// z增大到16
+uint8_t pca_code_buf[8] ;	// z增大到16
 uint8_t pca_buf_wr=0;		// 写指针
 uint8_t pca_buf_rd=0;		// 读指针
 
@@ -193,6 +193,9 @@ void PCA_Test_SampleVox(void)
 {
 	volatile uint16_t sz;
 
+	NS4160_D_type();
+	//Delay_Ms(100);
+	
 	for(sz=0; sz<PCM_SAMPLES; sz++)
 	{
 		while( !PCA_buf_fill_validate() ) 	// 等待PCA缓冲有空
