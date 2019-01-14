@@ -220,11 +220,11 @@ void TIM4_IRQHandler(void)   //TIM4中断
 			#if 1
 			if(pca_over_cnt%2 == 0)	 
 			{
-				LED_Set(LED_COM, OFF);
+				LED_Set(LED_RUN, OFF);
 			}
 			else
 			{
-				LED_Set(LED_COM, ON);
+				LED_Set(LED_RUN, ON);
 			}
 			PCA_buf_read_code();	 // 把缓冲区的PCM码填入 /
 			DAC_SetChannel1Data(DAC_Align_8b_R, pac_code_ax);

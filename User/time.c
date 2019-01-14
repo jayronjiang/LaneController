@@ -424,7 +424,7 @@ void TIM2_IRQHandler (void)
 //PWM输出初始化
 //arr：自动重装值,arr必须为0xFF, 
 // 	      因为PCM的采样值都是以0xFF为最大溢出值作为参考的
-//psc：时钟预分频数, 255*psc = 72M/8K, APB1是36M?
+//psc：时钟预分频数, 255*psc = 72M/8.64K
 void TIM4_PWM_Init(u16 arr,u16 psc)
 {		 					 
 	
