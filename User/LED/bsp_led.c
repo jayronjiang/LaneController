@@ -86,13 +86,6 @@ void LED_Flashing(uint16_t LED_No,uint16_t mtime, uint16_t flashtime)
 			DelayAndFeedDog(mtime);
 	      		break;
 
-		//case (LED_3): 
-	     	//	LED3(ON);
-		//	DelayAndFeedDog(mtime);
-		//	LED3(OFF);
-		//	DelayAndFeedDog(mtime);
-	      //		break;
-
 		default: 
 			break;
 		}

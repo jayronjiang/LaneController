@@ -262,10 +262,29 @@ void Init_System(void)
 	itest  = system_time_ms;
 	DelayAndFeedDog(260);
 	itest  = system_time_ms;
+
+	
+	LED_Set(LED_RUN, ON); 	// 开始通信指示
+	LED_Set(LED_RUN, OFF); 	// 开始通信指示
+	LED_Set(LED_RUN, ON); 	// 开始通信指示
+	LED_Set(LED_RUN, OFF); 	// 开始通信指示
+	LED_Set(LED_RUN, ON); 	// 开始通信指示
+	Delay_Xus(1);
+	LED_Set(LED_RUN, OFF); 	// 开始通信指示
+	Delay_Xus(2);
+	LED_Set(LED_RUN, ON);
+	Delay_Xus(10);
+	LED_Set(LED_RUN, OFF);
+	Delay_Xus(100);
+	LED_Set(LED_RUN, ON);
+	Delay_Xus(1000);
+	LED_Set(LED_RUN, OFF);
+	Delay_Xus(10000);
+	LED_Set(LED_RUN, ON);
 #endif
 
 	/*上电闪烁3次,每次50ms*/
-	LED_Flashing(LED_COM, 60, 3);
+	LED_Flashing(LED_RUN, 60, 3);
 	Param_Init();
 	//debug_puts("SPI test: KEY1:Write  KEY0:Read");
 

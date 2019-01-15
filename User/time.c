@@ -37,7 +37,7 @@ void Delay_Ms(uint32_t myMs)
 	while(myMs--)
 	{
 		// 汇编为9个语句, 因此为72M/9 = 8K.
-		i=8000/TFACT;
+		i=8000;
 		while(i--);
 	}
 }
@@ -85,7 +85,7 @@ void Delay_Xus(uint16_t us)
  ******************************************************************************/
 void Delay_Xms (uint16_t ms)
 {
-	uint16_t icount = ms/TFACT;
+	uint16_t icount = ms;
     	for ( ; icount > 0; icount--)
     	{
 	 	Delay_Xus(1000);
@@ -110,6 +110,7 @@ void Delay_Xms (uint16_t ms)
  ******************************************************************************/
 void DelayAndFeedDog(uint32_t myMs)
 {
+	#if 0
 	// Do not let the myMs be greater than the watchdog period.
 	//  Feed the Watchdog every 20ms.
 	uint32_t wcount;
@@ -121,6 +122,9 @@ void DelayAndFeedDog(uint32_t myMs)
 	}
 	// when jump out the loop, feed the last watchdog.
 	Ext_Wdt_Feed();
+	#endif
+	// 没有外部看门狗，不用考虑看门狗溢出
+	Delay_Ms(myMs);
 }
 
 //*****************************************************************************
@@ -190,7 +194,9 @@ void Stop_Timer_x(TIM_TypeDef* TIMx)
 void Timer_Start(void)
 {
 	Start_Timer_x(TIM2);
-	Start_Timer_x(TIM4);
+	/*刚开始配置的50ms定时器并没有用,只有在us定时器被*/
+	/*配置后才开始被使用,这里先不打开*/
+	//Start_Timer_x(TIM4);
 }
 
 /******************************************************************************
