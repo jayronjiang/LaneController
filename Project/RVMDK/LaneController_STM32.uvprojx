@@ -338,7 +338,7 @@
               <MiscControls></MiscControls>
               <Define>STM32F10X_HD, USE_STDPERIPH_DRIVER</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\Libraries\CMSIS;..\..\User;..\..\Libraries\FWlib\inc;..\..\User\IIC;..\..\User\Key;..\..\User\LED;..\..\User\motor;..\..\User\SysTick;..\..\User\usart;..\..\User\device_control;..\..\User\extwdt;..\..\User\message_handle;..\..\User\spi;..\..\User\debug;..\..\User\sys;..\..\User\ATE_shell</IncludePath>
+              <IncludePath>..\..\Libraries\CMSIS;..\..\User;..\..\Libraries\FWlib\inc;..\..\User\IIC;..\..\User\Key;..\..\User\LED;..\..\User\motor;..\..\User\SysTick;..\..\User\usart;..\..\User\device_control;..\..\User\message_handle;..\..\User\spi;..\..\User\debug;..\..\User\sys;..\..\User\ATE_shell;..\..\User\speaker;..\..\User\extwdt</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -586,11 +586,6 @@
               <FileName>bsp_usart2.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\User\usart\bsp_usart2.c</FilePath>
-            </File>
-            <File>
-              <FileName>ext_wdt.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\User\extwdt\ext_wdt.c</FilePath>
             </File>
             <File>
               <FileName>dev_ctrl.c</FileName>

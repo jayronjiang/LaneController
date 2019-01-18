@@ -133,7 +133,7 @@ static void Task_Schedule(void)
 		device_control_used.control_bits.Light_alarm_bit = 1;
 		control_device_expt_lg();
 	}
-
+#if 0
 	/* 设备每隔3s自动检测下状态*/
 	if (system_flag&SYS_ERR_CHK)				//设备错误状态自动检测部分	
 	{
@@ -153,6 +153,7 @@ static void Task_Schedule(void)
 			TTL_ALG_Wrong = FALSE;
 		}
 	}
+	#endif
 }
 
 
@@ -177,7 +178,7 @@ int main(void)
 	while(1)
 	{
 		/*主函数初始化,定时中断喂狗,能同时防止主函数和中断程序跑飞*/
-		wdt_counter = 0;
+		wdt_counter = 0; 
 		Comm_Proc();
 		Task_Schedule();			// 系统任务列表
 	}

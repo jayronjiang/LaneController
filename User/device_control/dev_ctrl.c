@@ -740,6 +740,16 @@ void control_device_expt_lg(void)
 	{
 		DeviceX_Deactivate(LAN_LAMP);
 	}
+
+	// ±∏”√2
+	if(Command_Get(BAK2_USED))
+	{
+		DeviceX_Activate(BAK2_USED);
+	}
+	else
+	{
+		DeviceX_Deactivate(BAK2_USED);
+	}
 }
 
 

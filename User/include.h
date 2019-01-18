@@ -13,7 +13,7 @@
 #include "bsp_key.h"
 
 #include "stm32f10x_it.h"
-#include "ext_wdt.h"
+#include "stm32f10x_iwdg.h"
 #include "dev_ctrl.h"
 #include "usart_driver.h"
 #include "bsp_usart1.h"

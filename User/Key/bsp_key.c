@@ -40,7 +40,7 @@ uint16_t GPIO_ReadInputAll(uint8_t polar)
 	}
 	if ( polar == LOW_POLAR )
 	{
-		key_val = ~key_val;			// 把低有效全部转为高有效
+		key_val = key_val^0x00FF;		// 把低8位的低有效全部转为高有效
 	}
 
 	return key_val;
@@ -51,7 +51,8 @@ uint16_t GPIO_ReadInputAll(uint8_t polar)
  * 描述:  	读取外部输入状态
  * 
  * 输入参数: 
- * 输出参数: 
+ * 输出参数: key_effective_port,相应位为1表明读取几次都为1
+ *				相应位为0表明读取几次都为0.
  * 返回值: 
  * 
  * 作者:蒋建荣
@@ -65,8 +66,10 @@ void ReadKey(void)
 {
 	static uint16_t debounce_buffer[DEBOUNCE_TIME];	//防抖一次就可以
 	static uint8_t buffer_index = 0;
-	static uint16_t key_effective_port_last=0; /*上次经过防抖的真实按键端口状态*/
-	uint16_t key_effective_port=0;	/*表示经过消抖后确认得到的按键状态*/
+	/*因为初始时外部默认为高电平,所以初始化为0xFF */
+	/*如果初始时外部为低电平,要初始化为0, 否则开始会有一次变位 */
+	static uint16_t key_effective_port_last= 0xFF; /*上次经过防抖的真实按键端口状态*/
+	static uint16_t key_effective_port = 0xFF;	/*表示经过消抖后确认得到的按键状态*/
 	uint16_t constant_high = 0xFF;	/*当相应位为1表明读取的几次相应位都为1*/
 	uint16_t constant_low = 0xFF;	/*当相应位为1表明读取的几次相应位都为0*/
 
@@ -80,11 +83,11 @@ void ReadKey(void)
 	}
 
 	/*同时读取高有效和低有效的2个值*/
-        for (i = 0; i < DEBOUNCE_TIME; i++) {
-
-            constant_high &= debounce_buffer[i];
-            constant_low &= ~debounce_buffer[i];
-        }
+	for (i = 0; i < DEBOUNCE_TIME; i++) 
+	{
+		constant_high &= debounce_buffer[i];
+		constant_low &= ~debounce_buffer[i];
+	}
 
 	/*先得到全为1的位*/
 	/*再得到全为0的位*/
@@ -100,6 +103,7 @@ void ReadKey(void)
 	}
 }
 
+#if 0
 /******************************************************************************
  * 函数名:	NVIC_Configuration 
  * 描述:  	外部中断的配置
@@ -194,4 +198,5 @@ void EXTI4_IRQHandler(void)
 		EXTI_ClearITPendingBit(EXTI_Line4);     //清除中断标志位
 	}  
 }
+#endif
 
