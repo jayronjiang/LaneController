@@ -184,7 +184,7 @@ void ATE_main(void)
 	serial_put_chars("Download data to flash, Type 't' and 'enter'.\n");
 	serial_put_chars("(Please input command in 5s).\n");
 
-	serial_get_cmd(2);	// 5s还是2s?
+	serial_get_cmd(5);	// 5s还是2s?
 	if((cmd_char[0]!='c')&&(cmd_char[0]!='t'))
 	{
 		serial_put_chars("Good Bye!\r\n");

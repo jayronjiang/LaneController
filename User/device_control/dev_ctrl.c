@@ -599,6 +599,7 @@ bool detect_ALG_TTL_working(void)
 		}
 	}
 
+	/*雨棚灯无论是控制还是状态都是0:红灯, 1: 绿灯*/
 	if (Status_Get(TTL) == Command_Get(TTL_GREEN))
 	{
 		device_status_used.status_bits.TTL_work_status = OPT_OK;

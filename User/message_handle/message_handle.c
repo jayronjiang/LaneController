@@ -751,7 +751,7 @@ void message_send_printf(USART_LIST uartNo)
 	}
 	else
 	{
-		PUSART = USART1;
+		return;
 	}
 
 	/*和printf一样,是阻塞型的发送*/
@@ -804,8 +804,8 @@ void message_pack_printf(USART_LIST uartNo, uint8_t msg_type)
 	}
 	else
 	{
-		// 没有使用USART3就不赋值了， 以免卡死
-		PUSART = USART1;
+		// 没有使用USART3就不赋值了，直接返回
+		return;
 	}
 	
 	message_pack(uartNo, msg_type, pProbuf);

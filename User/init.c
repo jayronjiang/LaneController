@@ -287,6 +287,7 @@ void Init_System(void)
 	LED_GPIO_Config();
 	//EXTI_PE4_Config();
 
+	/* 先配置成115200传输声音文件*/
 	Comm1_Init(115200);	// USART1 配置模式为 115200 8-N-1，中断接收
 	Comm2_Init(115200);	// USART2 配置模式为 115200 8-N-1，中断接收
 
@@ -329,7 +330,7 @@ void Init_System(void)
 	LED_Set(LED_RUN, ON);
 #endif
 
-	/*上电闪烁3次,每次50ms*/
+	/*上电闪烁3次,每次60ms*/
 	LED_Flashing(LED_RUN, 60, 3);
 	Param_Init();
 	//debug_puts("SPI test: KEY1:Write  KEY0:Read");
@@ -337,6 +338,10 @@ void Init_System(void)
 	LED_Set(LED_COM, ON);		//编程指示灯亮
 	ATE_main();
 	LED_Set(LED_COM, OFF);
+
+	/*工作时要设置成9600*/
+	Comm1_Init(9600);	// USART1 配置模式为 115200 8-N-1，中断接收
+	Comm2_Init(9600);	// USART2 配置模式为 115200 8-N-1，中断接收
 
 	IWDG_Init(IWDG_Prescaler_64,625);    //预分频值为64，重装载值为625, 看门狗为1s.
 	
