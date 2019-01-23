@@ -338,7 +338,7 @@
               <MiscControls></MiscControls>
               <Define>STM32F10X_HD, USE_STDPERIPH_DRIVER</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\Libraries\CMSIS;..\..\User;..\..\Libraries\FWlib\inc;..\..\User\IIC;..\..\User\Key;..\..\User\LED;..\..\User\motor;..\..\User\SysTick;..\..\User\usart;..\..\User\device_control;..\..\User\message_handle;..\..\User\spi;..\..\User\debug;..\..\User\sys;..\..\User\ATE_shell;..\..\User\speaker;..\..\User\extwdt</IncludePath>
+              <IncludePath>..\..\Libraries\CMSIS;..\..\User;..\..\Libraries\FWlib\inc;..\..\User\Key;..\..\User\LED;..\..\User\motor;..\..\User\SysTick;..\..\User\usart;..\..\User\device_control;..\..\User\message_handle;..\..\User\debug;..\..\User\sys</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -583,11 +583,6 @@
               <FilePath>..\..\User\SysTick\bsp_SysTick.c</FilePath>
             </File>
             <File>
-              <FileName>bsp_usart2.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\User\usart\bsp_usart2.c</FilePath>
-            </File>
-            <File>
               <FileName>dev_ctrl.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\User\device_control\dev_ctrl.c</FilePath>
@@ -596,11 +591,6 @@
               <FileName>message_handle.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\User\message_handle\message_handle.c</FilePath>
-            </File>
-            <File>
-              <FileName>test.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\User\test.c</FilePath>
             </File>
             <File>
               <FileName>usart_driver.c</FileName>
@@ -613,16 +603,6 @@
               <FilePath>..\..\User\usart\bsp_usart1.c</FilePath>
             </File>
             <File>
-              <FileName>spi.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\User\spi\spi.c</FilePath>
-            </File>
-            <File>
-              <FileName>w25qxx.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\User\spi\w25qxx.c</FilePath>
-            </File>
-            <File>
               <FileName>debug.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\User\debug\debug.c</FilePath>
@@ -631,16 +611,6 @@
               <FileName>sys.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\User\sys\sys.c</FilePath>
-            </File>
-            <File>
-              <FileName>ATE_Shell.C</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\User\ATE_shell\ATE_Shell.C</FilePath>
-            </File>
-            <File>
-              <FileName>xmodem.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\User\ATE_shell\xmodem.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -651,11 +621,6 @@
               <FileName>readme.txt</FileName>
               <FileType>5</FileType>
               <FilePath>..\..\Doc\readme.txt</FilePath>
-            </File>
-            <File>
-              <FileName>官方例程IO.txt</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\User\官方例程IO.txt</FilePath>
             </File>
           </Files>
         </Group>

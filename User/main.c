@@ -45,7 +45,7 @@ static void Task_Schedule(void)
 	/*这两行代码在山西太旧中使用，但不知道用于什么目的*/
 		if(Status_Get(TTL)==0)
 		{
-			message_pack_printf(PC1_UART, TEST_MSG);
+			message_send_printf(PC1_UART, TRUE, TEST_MSG);
 		}
 	#endif
 
@@ -62,7 +62,7 @@ static void Task_Schedule(void)
 		/*通知所有上位机有变位*/
 		for (i = pc_com[0]; i <= pc_com[PC_USART_NUM-1]; i++)
 		{
-			message_pack_printf(i, B_RES_MSG);
+			message_send_printf(i, TRUE, B_RES_MSG);
 		}
 		
 		if(Status_Get(BACK_COIL) == 0)	 	/* 如果本次检测到有车*/

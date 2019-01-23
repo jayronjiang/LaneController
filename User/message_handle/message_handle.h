@@ -35,11 +35,6 @@
 #define ALL8_MSG				0x10		// 显示全8，拷机测试
 #define VOXPLAY_MSG			0x11		// 拷机测试播放测试声音
 
-#define A_MSG				98		// 模拟A信息测试
-#define CR_MSG				97		// 模拟C信息测试
-#define CV_MSG				96		// 模拟C信息测试
-#define CD_MSG				95		// 模拟C信息测试
-
 #define TEST_MSG				99		// 测试功能
 
 #define LOCAL_ADD			('1')		//0x31
@@ -99,10 +94,11 @@ typedef  struct
 extern PROTOCOL_BUF	ProtocolBuf[UART_NUM];
 
 void Comm1_Init(uint32_t baudrate);
+#if (UART_NUM == 2)
 void Comm2_Init(uint32_t baudrate);
+#endif
 void message_pack(USART_LIST uart_no, uint8_t msg_type,PROTOCOL_BUF *buf);
-void message_send_printf(USART_LIST uartNo);
-void message_pack_printf(USART_LIST uartNo, uint8_t msg_type);
+void message_send_printf(USART_LIST uartNo,bool pack_en, uint8_t msg_type);
 void Comm_Proc(void);
 
 #endif /* __MESSAGE_HANDLE_H */

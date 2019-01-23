@@ -58,13 +58,14 @@ static void UpdateFeeDisplay(uint8_t Index)
 {
 	if (Index%2)
 	{
-		message_pack_printf(PC1_UART, FEE_R_MSG); // 费显为红色
+		message_send_printf(PC1_UART, TRUE, FEE_R_MSG); // 费显为红色
 		Delay_Ms(250);
-		message_pack_printf(PC1_UART, ALL8_MSG);
+		message_send_printf(PC1_UART, TRUE, ALL8_MSG);
 	}
 	else
 	{
-		message_pack_printf(PC1_UART, FEE_G_MSG); // 费显为绿色
+		message_send_printf(PC1_UART, TRUE, FEE_G_MSG); // 费显为绿色
+		
 	}
 }
 
@@ -87,11 +88,11 @@ static void PlayVoice(uint8_t Index)
 {
 	if (Index%5)
 	{
-		message_pack_printf(PC1_UART, VOXPLAY_MSG); 
+		message_send_printf(PC1_UART, TRUE, VOXPLAY_MSG); 
 	}
 	else
 	{
-		message_pack_printf(PC1_UART, FEE_G_MSG); // 声音停止?
+		message_send_printf(PC1_UART, TRUE, FEE_G_MSG); // 声音停止?
 	}
 }
 

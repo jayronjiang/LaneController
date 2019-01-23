@@ -781,7 +781,7 @@ void control_device(void)
 		// 后线圈没车,高电平
 		if (Status_Get(BACK_COIL))
 		{
-			message_pack_printf(FEE_UART, FEE_R_MSG); 	// 降杠, 费显要为红色
+			message_send_printf(FEE_UART, TRUE, FEE_R_MSG); // 降杠, 费显要为红色
 			Drop_LG_Start(); 							//降杠
 			WatchingDelayCount = 4*ONE_SECOND;		//防砸监视4S
 		}
@@ -796,53 +796,11 @@ void control_device(void)
 	// ALG_up_bit 初始化的时候为0
 	if(Command_Get(BAR_UP))
 	{
-		message_pack_printf(FEE_UART, FEE_G_MSG); // 降杠, 费显要为红色
-		Rise_LG_Start(); 				//降杠
+		message_send_printf(FEE_UART, TRUE, FEE_G_MSG); // 抬杆，绿色
+		Rise_LG_Start(); 				//抬杠
 	}
 
 	control_device_expt_lg();
-
-#if 0
-	// 雨棚灯控制
-	if(Command_Get(TTL_GREEN))
-	{
-		DeviceX_Activate(TTL_GREEN);
-	}
-	else
-	{
-		DeviceX_Deactivate(TTL_GREEN);
-	}
-
-	// 声音报警
-	if(Command_Get(VOX_ALM))
-	{
-		DeviceX_Activate(VOX_ALM);
-	}
-	else
-	{
-		DeviceX_Deactivate(VOX_ALM);
-	}
-
-	// 灯光报警
-	if(Command_Get(LIGHT_ALM))
-	{
-		DeviceX_Activate(LIGHT_ALM);
-	}
-	else
-	{
-		DeviceX_Deactivate(LIGHT_ALM);
-	}
-
-	// 车道通行灯
-	if(Command_Get(LAN_LAMP))
-	{
-		DeviceX_Activate(LAN_LAMP);
-	}
-	else
-	{
-		DeviceX_Deactivate(LAN_LAMP);
-	}
-#endif
 
 	// 备份车道通行灯位.
 	LastLaneLampState = device_control_used.control_bits.Lane_lamp_bit;
@@ -881,7 +839,7 @@ static void BarOpRectifyLaneLamp(void)
 	{
 		device_control_used.control_bits.ALG_down_bit = 0;		// 如果同时接收到抬杠和降杠，则抬杠
 	}
-	//FeedDog();
+
 	if(Command_Get(BAR_UP))
 	{
 		//绿灯, 如果抬杠，则必须亮绿灯
@@ -928,7 +886,6 @@ void ClearFEEdisplay(void)
 	 	return;
 	}
 
-	//FeedDog();
 	bFeeCleared = TRUE;
 	if(bLastLaneRedGreenOperateState == GREEN)
 	{
@@ -940,13 +897,14 @@ void ClearFEEdisplay(void)
 		else
 		{
 			//对于广东版本的费显，只要开绿灯或红灯都清除费额
-			message_pack_printf(FEE_UART, COST_OFF_MSG);
+			message_send_printf(FEE_UART, TRUE, COST_OFF_MSG);
+			
 		}
 	}
 	else
 	{
 		//不管是哪个版本的费显，只要开红灯都清除费额
-		message_pack_printf(FEE_UART, COST_OFF_MSG);
+		message_send_printf(FEE_UART, TRUE, COST_OFF_MSG);
 	}
 }
 
@@ -992,15 +950,16 @@ void params_modify_deal(void)
 	{
 		/* 必须是栏杆没有被控制*/
 		if((Command_Get(BAR_UP) == 0)&&(Command_Get(BAR_DOWN) == 0))
-		{
-			//message_pack_printf(FEE_UART, SPK_MSG);	// 扬声器输出,暂时不输出
+		{	
+			//message_send_printf(FEE_UART, TRUE, SPK_MSG);// 扬声器输出,暂时不输出
+			
 		}
 
 		/* 如果是抬杠命令, 和费显绿灯一样的语音*/
 		/* 但是要注意串口的选择*/
 		if(Command_Get(BAR_UP))
 		{
-			message_pack_printf(FEE_UART, FEE_G_MSG);
+			message_send_printf(FEE_UART, TRUE, FEE_G_MSG);
 		}
 	}
 	//该处延时约等于if内的时间，保证连续对费显的操作的间隔时间
@@ -1015,7 +974,7 @@ void params_modify_deal(void)
 		// 费额需要显示
 		if(device_control_used.control_bits.FEE_display_bit == 1)
 		{
-			message_pack_printf(FEE_UART, COST_ON_MSG);
+			message_send_printf(FEE_UART, TRUE, COST_ON_MSG);
 		}
 		else
 		{

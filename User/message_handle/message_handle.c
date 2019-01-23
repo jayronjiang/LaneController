@@ -11,7 +11,7 @@
   
 #include "include.h"
 
-const char VerInfo[]="LC-301-V4.1-181017";
+const char VerInfo[]="LC-301-V4.1-190123";
 
 /*定义通信缓冲区*/
 PROTOCOL_BUF ProtocolBuf[UART_NUM];
@@ -184,12 +184,12 @@ static uint8_t message_check(PROTOCOL_BUF *buf)
 						if (rx_buf[3] == 0x01)
 						{
 							message_pack(FEE_UART, FEE_R_MSG,buf);
-							message_send_printf(FEE_UART);
+							message_send_printf(FEE_UART, FALSE,0xFF);
 						}
 						else
 						{
 							message_pack(FEE_UART, FEE_G_MSG,buf);
-							message_send_printf(FEE_UART);
+							message_send_printf(FEE_UART, FALSE,0xFF);
 						}
 					}
 				}
@@ -615,99 +615,6 @@ void message_pack(USART_LIST uart_no, uint8_t msg_type,PROTOCOL_BUF *buf)
 		break;
 #endif
 
-#ifdef DEBUG_EN
-	case A_MSG:
-		pbuf[len++] = MSG_SOF;
-		pbuf[len++] = 'A';
-		pbuf[len++] = LOCAL_ADD;
-		pbuf[len++] = device_status_used.status_word[USED];
-		
-		pbuf[len++] = '5';
-		pbuf[len++] = '5';
-		pbuf[len++] = '0';
-		pbuf[len++] = '0';		//pbuf[3~6] , 费额
-		
-		pbuf[len++] = '0';
-		pbuf[len++] = '0';
-		pbuf[len++] = '3';
-		pbuf[len++] = '3';		// pbuf[7~10] , 余额
-		
-		pbuf[len++] = '4';
-		pbuf[len++] = '4';
-		pbuf[len++] = '4';
-		pbuf[len++] = '4';
-		pbuf[len++] = '4';
-		pbuf[len++] = '4';		//pbuf[11~16] , entrance
-
-		pbuf[len++] = 1;
-		pbuf[len++] = 2;
-			
-		pbuf[len++] = device_status_used.status_word[BACKUP];
-
-		pbuf[len++] = '0';
-		
-		pbuf[len++] = MSG_EOF;
-		
-		xor_t = pbuf[1];			// 'A'
-		for (i = 2; i < len-1; i++)	// MSG_SOF和EOF不参与异或
-		{
-			xor_t = xor_t^pbuf[i];	//异或校验
-		}
-		pbuf[len++] = xor_t;
-		break;
-
-	case CR_MSG:
-	case CV_MSG:
-	case CD_MSG:
-		pbuf[len++] = MSG_SOF;
-		pbuf[len++] = 'C';
-		pbuf[len++] = LOCAL_ADD;
-		if (msg_type == CR_MSG)
-		{
-			pbuf[len++] = 'R';
-		} 
-		else if (msg_type == CV_MSG)
-		{
-			pbuf[len++] = 'V';
-		}
-		else
-		{
-			pbuf[len++] = 'D';
-		}
-		
-		pbuf[len++] = '5';
-		pbuf[len++] = '5';
-		pbuf[len++] = '0';
-		pbuf[len++] = '0';		//pbuf[3~6] , 费额
-		
-		pbuf[len++] = '0';
-		pbuf[len++] = '0';
-		pbuf[len++] = '3';
-		pbuf[len++] = '3';		// pbuf[7~10] , 余额
-		
-		pbuf[len++] = '4';
-		pbuf[len++] = '4';
-		pbuf[len++] = '4';
-		pbuf[len++] = '4';
-		pbuf[len++] = '4';
-		pbuf[len++] = '4';		//pbuf[11~16] , entrance
-
-		pbuf[len++] = '0';
-		pbuf[len++] = '0';
-		pbuf[len++] = '0';
-		pbuf[len++] = '0';
-		
-		pbuf[len++] = MSG_EOF;
-		
-		xor_t = pbuf[1];			// 'C'
-		for (i = 2; i < len-1; i++)	// MSG_SOF和EOF不参与异或
-		{
-			xor_t = xor_t^pbuf[i];	//异或校验
-		}
-		pbuf[len++] = xor_t;
-		break;
-#endif
-
 	default:
 		break;
 	}
@@ -722,6 +629,9 @@ void message_pack(USART_LIST uart_no, uint8_t msg_type,PROTOCOL_BUF *buf)
  * 		这是阻塞型的发送,发送时不能干其它任务.
  *
  * 输入参数:  把uartNo对应的发送缓存数据发送到uartNo口中
+ *	pack_en: 是否还需要打包? 
+ *		TRUE: 是, 
+ *		FALSE: 不需要打包，直接发送,此时msg_type没有意义
  * 输出参数: 
  * 返回值: 
  * 
@@ -732,7 +642,7 @@ void message_pack(USART_LIST uart_no, uint8_t msg_type,PROTOCOL_BUF *buf)
  * 修改人:
  * 修改日期:
  ******************************************************************************/
-void message_send_printf(USART_LIST uartNo)
+void message_send_printf(USART_LIST uartNo,bool pack_en, uint8_t msg_type)
 {
 	uint16_t i = 0;
 	uint8_t ch = 0;
@@ -753,68 +663,15 @@ void message_send_printf(USART_LIST uartNo)
 #endif
 	else
 	{
+		/* 没有使用USART3就不赋值了，直接返回*/
 		return;
 	}
 
-	/*和printf一样,是阻塞型的发送*/
-	for (i = 0; i < pProbuf->TxLen; i++)
+	if (pack_en)
 	{
-		ch = pProbuf->pTxBuf[i];
-		USART_SendData(PUSART, ch);
-		/* 等待发送完毕 */
-		while (USART_GetFlagStatus(PUSART, USART_FLAG_TXE) == RESET);	
-		
+		message_pack(uartNo, msg_type, pProbuf);
 	}
-	pProbuf->TxLen = 0;
-	/*printf无法输出状态量0*/
-	//printf("%s", pProbuf->pTxBuf);
-}
 
-
-/******************************************************************************
- * 函数名:	message_pack_printf 
- * 描述: 信息的打包和发送
- * 		这是阻塞型的发送,发送时不能干其它任务.
- *
- * 输入参数: 
- * 输出参数: 
- * 返回值: 
- * 
- * 作者:Jerry
- * 创建日期:2018.10.18
- * 
- *------------------------
- * 修改人:
- * 修改日期:
- ******************************************************************************/
-void message_pack_printf(USART_LIST uartNo, uint8_t msg_type)
-{
-	uint16_t i = 0;
-	uint8_t ch = 0;
-	PROTOCOL_BUF *pProbuf;
-	USART_TypeDef *PUSART = USART1;
-
-	pProbuf  = &ProtocolBuf[uartNo];
-
-	if (uartNo == UART1_COM)
-	{
-		PUSART = USART1;
-	}
-#if (UART_NUM == 2)
-	else if (uartNo == UART2_COM)
-	{
-		PUSART = USART2;
-	}
-#endif
-	else
-	{
-		// 没有使用USART3就不赋值了，直接返回
-		return;
-	}
-	
-	message_pack(uartNo, msg_type, pProbuf);
-
-	
 	LED_Set(LED_COM, ON); 	// 开始通信指示
 	/*和printf一样,是阻塞型的发送*/
 	for (i = 0; i < pProbuf->TxLen; i++)
@@ -827,11 +684,10 @@ void message_pack_printf(USART_LIST uartNo, uint8_t msg_type)
 	}
 	pProbuf->TxLen = 0;
 	LED_Set(LED_COM, OFF); 	// 通信完毕
-	/*printf无法输出状态量0*/
-	//printf("%s", pProbuf->pTxBuf);
 }
 
-  /******************************************************************************
+
+ /******************************************************************************
  * 函数名:	Comm_Proc 
  * 描述: -通讯处理函数,主程序中调用,主要处理RS 485口数据,
  *				   若是本装置的数据则进入解包处理
@@ -852,42 +708,37 @@ void Comm_Proc(void)
 	uint8_t err = ERR_OK;
 	USART_LIST i = PC1_UART;
 
-    for (i = pc_com[0]; i <= pc_com[PC_USART_NUM-1]; i++)
-    {
-	if (UARTBuf[i].RecFlag)		                      //RS485口有数据
-	{	
-		#ifdef DEBUG_EN
-	  		//printf("%s",UARTBuf[i].RxBuf);    //将接受到的数据直接返回打印
-	  	#endif
-
-		UARTBuf[i].RecFlag = 0;		//接收数据已处理，清除相关标志
-		ProtocolBuf[i].pTxBuf = UARTBuf[i].TxBuf;         //地址置换
-		ProtocolBuf[i].pRxBuf = UARTBuf[i].RxBuf;
-		ProtocolBuf[i].RxLen = UARTBuf[i].RxLen;
-		ProtocolBuf[i].TxLen = 0;
-		UARTBuf[i].RxLen = 0;		//已经被读取到ProtocolBuf0.RxLen, 尽快清0
-
-		err = message_process(i);		//通信协议处理
-		if (err == TRANS_REQ)							// 需要透传的
+	for (i = pc_com[0]; i <= pc_com[PC_USART_NUM-1]; i++)
+	{
+		if (UARTBuf[i].RecFlag)		                      //RS485口有数据
 		{
-			//trans_src = USARTX;	// 得到透传口
-			message_pack_printf(TRANS_UART, TRANS_MSG);
-		}
+			UARTBuf[i].RecFlag = 0;		//接收数据已处理，清除相关标志
+			ProtocolBuf[i].pTxBuf = UARTBuf[i].TxBuf;         //地址置换
+			ProtocolBuf[i].pRxBuf = UARTBuf[i].RxBuf;
+			ProtocolBuf[i].RxLen = UARTBuf[i].RxLen;
+			ProtocolBuf[i].TxLen = 0;
+			UARTBuf[i].RxLen = 0;		//已经被读取到ProtocolBuf0.RxLen, 尽快清0
 
-		UARTBuf[i].TxLen = ProtocolBuf[i].TxLen;  //置换回来，处理物理层数据
-		if(UARTBuf[i].TxLen >0)
-		{
-			/*回复B/C信息给上位机*/
-			message_send_printf(i);
-		}
-		Delay_Ms(5);				// 稍微有点延时,可以不要
+			err = message_process(i);		//通信协议处理
+			if (err == TRANS_REQ)							// 需要透传的
+			{
+				message_send_printf(TRANS_UART, TRUE, TRANS_MSG);
+			}
 
-		/*放在括号内,只有收到新的信息才操作*/
-		if (err == ERR_OK)
-		{
-			params_modify_deal();		//后续的数据改变处理
+			UARTBuf[i].TxLen = ProtocolBuf[i].TxLen;  //置换回来，处理物理层数据
+			if(UARTBuf[i].TxLen >0)
+			{
+				/*回复B/C信息给上位机*/
+				message_send_printf(i, FALSE, 0xFF);
+			}
+			Delay_Ms(5);				// 稍微有点延时,可以不要
+
+			/*放在括号内,只有收到新的信息才操作*/
+			if (err == ERR_OK)
+			{
+				params_modify_deal();		//后续的数据改变处理
+			}
 		}
 	}
-    }
 }
 /*********************************************END OF FILE**********************/
