@@ -32,4 +32,11 @@ Project/RVMDK（uv5）/EventRecorderStub.scvd
 Project/RVMDK（uv5）/LaneController_STM32.uvguix.Administrator
 Project/RVMDK（uv5）/LaneController_STM32.uvoptx
 Project/RVMDK（uv5）/LaneController_STM32.uvguix.jerry
+Project/RVMDK/DebugConfig
+Project/RVMDK/Listings
+Project/RVMDK/Objects
+Project/RVMDK/EventRecorderStub.scvd
+Project/RVMDK/LaneController_STM32.uvguix.Administrator
+Project/RVMDK/LaneController_STM32.uvoptx
+Project/RVMDK/LaneController_STM32.uvguix.jerry
 User/*.txt
