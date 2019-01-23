@@ -8,11 +8,12 @@
   *
   ******************************************************************************
   */
+
 #include "include.h"
 
 void debug_puts(const uint8_t *str)
 {
 	printf("%s", str);
-	uart_sel = SHELL_COM;
+	uart_sel = PC1_UART;
 }
 

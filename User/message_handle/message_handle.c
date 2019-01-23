@@ -11,7 +11,7 @@
   
 #include "include.h"
 
-const uint8_t VerInfo[]="LC-301-V4.1-181017";
+const char VerInfo[]="LC-301-V4.1-181017";
 
 /*定义通信缓冲区*/
 PROTOCOL_BUF ProtocolBuf[UART_NUM];
@@ -275,7 +275,7 @@ void Comm1_Init(uint32_t baudrate)
 	ProtocolBuf[UART1_COM].RxLen = 0;
 	ProtocolBuf[UART1_COM].TxLen = 0;
 }
-
+#if (UART_NUM == 2)
 /******************************************************************************
  * 函数名:	Comm2_Init 
  * 描述: 串口2的初始化
@@ -301,7 +301,7 @@ void Comm1_Init(uint32_t baudrate)
 	ProtocolBuf[UART2_COM].RxLen = 0;
 	ProtocolBuf[UART2_COM].TxLen = 0;
 }
-
+#endif
 /******************************************************************************
  * 函数名:	message_pack 
  * 描述: 信息的打包,形成协议格式数据
@@ -745,10 +745,12 @@ void message_send_printf(USART_LIST uartNo)
 	{
 		PUSART = USART1;
 	}
+#if (UART_NUM == 2)
 	else if (uartNo == UART2_COM)
 	{
 		PUSART = USART2;
 	}
+#endif
 	else
 	{
 		return;
@@ -798,10 +800,12 @@ void message_pack_printf(USART_LIST uartNo, uint8_t msg_type)
 	{
 		PUSART = USART1;
 	}
+#if (UART_NUM == 2)
 	else if (uartNo == UART2_COM)
 	{
 		PUSART = USART2;
 	}
+#endif
 	else
 	{
 		// 没有使用USART3就不赋值了，直接返回

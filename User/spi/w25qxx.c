@@ -10,6 +10,7 @@
   */
 #include "include.h" 
 
+#ifdef SPEAKER_ENABLE
 uint16_t W25QXX_TYPE=W25Q128;	//默认是W25Q128
 
 uint8_t FLASH_ext_bufx[SPI_PAGESIZE /2 ];
@@ -378,5 +379,6 @@ void W25QXX_WAKEUP(void)
     SPI2_ReadWriteByte(W25X_ReleasePowerDown);	//  send W25X_PowerDown command 0xAB    
 	W25QXX_CS=1;                            	//取消片选     	      
     Delay_Xus(3);                            	//等待TRES1
-}   
+}
+#endif
 

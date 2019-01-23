@@ -1,6 +1,11 @@
 #ifndef __INCLUDE_H
 #define	__INCLUDE_H
 
+/*Function defines*/
+/*是否使能语音播报*/
+//#define SPEAKER_ENABLE
+
+/*头文件包含列表*/
 #include "stm32f10x.h"
 #include "stdio.h"
 #include <string.h>

@@ -1,6 +1,7 @@
 #ifndef __FLASH_H
 #define __FLASH_H			    
-	  
+
+#ifdef SPEAKER_ENABLE
 //W25X系列/Q系列芯片列表	   
 //W25Q80  ID  0XEF13
 //W25Q16  ID  0XEF14
@@ -63,5 +64,7 @@ void    SPI_Erase_Block(uint32_t Dst_Addr);
 void W25QXX_Write_Page(uint8_t* pBuffer,uint32_t WriteAddr,uint16_t NumByteToWrite);
 void SPI_Read_Start(uint32_t Dst_Addr);
 void SPI_Read_End(void);
+#endif
+
 #endif
 

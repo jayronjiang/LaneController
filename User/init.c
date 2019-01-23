@@ -285,18 +285,25 @@ void Init_System(void)
 	Time_Configuration();	//系统时间和延时相关定时器初始化
 	
 	LED_GPIO_Config();
-	//EXTI_PE4_Config();
-
-	/* 先配置成115200传输声音文件*/
-	Comm1_Init(115200);	// USART1 配置模式为 115200 8-N-1，中断接收
-	Comm2_Init(115200);	// USART2 配置模式为 115200 8-N-1，中断接收
-
-	W25QXX_Init();		//W25QXX初始化
 	
 	/*滴答定时器初始化，1ms中断周期*/
 	/* 这个定时器用于驱动整个循环运行，放在初始化的最后*/
 	/* 也就是硬件初始化完毕后定时器开始运行*/
 	SysTick_Init();	// 本程序不带操作系统,只是一个普通的ms定时器
+
+#ifdef SPEAKER_ENABLE
+	/* 先配置成115200传输声音文件*/
+	Comm1_Init(115200);	// USART1 配置模式为 115200 8-N-1，中断接收
+#if (UART_NUM == 2)
+	Comm2_Init(115200);	// USART2 配置模式为 115200 8-N-1，中断接收
+#endif
+
+	W25QXX_Init();		//W25QXX初始化
+	LED_Set(LED_COM, ON);		//编程指示灯亮
+	ATE_main();
+	LED_Set(LED_COM, OFF);
+#endif
+
 
 /* 用来测试定时是否准确的语句*/
 #if 0
@@ -329,19 +336,16 @@ void Init_System(void)
 	Delay_Xus(10000);
 	LED_Set(LED_RUN, ON);
 #endif
+/*工作时要设置成9600*/
+	Comm1_Init(9600);	// USART1 配置模式为 115200 8-N-1，中断接收
+#if (UART_NUM == 2)
+	Comm2_Init(9600);	// USART2 配置模式为 115200 8-N-1，中断接收
+#endif
 
 	/*上电闪烁3次,每次60ms*/
 	LED_Flashing(LED_RUN, 60, 3);
 	Param_Init();
 	//debug_puts("SPI test: KEY1:Write  KEY0:Read");
-
-	LED_Set(LED_COM, ON);		//编程指示灯亮
-	ATE_main();
-	LED_Set(LED_COM, OFF);
-
-	/*工作时要设置成9600*/
-	Comm1_Init(9600);	// USART1 配置模式为 115200 8-N-1，中断接收
-	Comm2_Init(9600);	// USART2 配置模式为 115200 8-N-1，中断接收
 
 	IWDG_Init(IWDG_Prescaler_64,625);    //预分频值为64，重装载值为625, 看门狗为1s.
 	

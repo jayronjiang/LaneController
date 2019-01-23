@@ -10,6 +10,7 @@
   */
 #include "include.h"
 
+#ifdef SPEAKER_ENABLE
 void SPI2_Init(void)
 {
  	GPIO_InitTypeDef GPIO_InitStructure;
@@ -92,5 +93,7 @@ uint8_t   SPI_Get_Byte()
 		if(retry>200)	return 0;
 	}	  						    
 	return SPI_I2S_ReceiveData(SPI2); //返回通过SPIx最近接收的数据	
-} 
+}
+
+#endif
 

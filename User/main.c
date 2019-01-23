@@ -60,7 +60,7 @@ static void Task_Schedule(void)
 		/* 先看看是否有动作异常*/
 		detect_ALG_TTL_working();
 		/*通知所有上位机有变位*/
-		for (i = pc_com[0]; i<pc_com[PC_USART_NUM-1]; i++)
+		for (i = pc_com[0]; i <= pc_com[PC_USART_NUM-1]; i++)
 		{
 			message_pack_printf(i, B_RES_MSG);
 		}
@@ -133,7 +133,7 @@ static void Task_Schedule(void)
 		device_control_used.control_bits.Light_alarm_bit = 1;
 		control_device_expt_lg();
 	}
-#if 0
+
 	/* 设备每隔3s自动检测下状态*/
 	if (system_flag&SYS_ERR_CHK)				//设备错误状态自动检测部分	
 	{
@@ -153,7 +153,7 @@ static void Task_Schedule(void)
 			TTL_ALG_Wrong = FALSE;
 		}
 	}
-	#endif
+
 }
 
 

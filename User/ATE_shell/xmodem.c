@@ -8,7 +8,10 @@
   *
   ******************************************************************************
   */
+
 #include "include.h"
+
+#ifdef SPEAKER_ENABLE
 
 #define XMODEM_SOH  0x01
 #define XMODEM_STX  0x02
@@ -370,7 +373,7 @@ uint8_t xmodemTransmit()
 			return E0_OK;
 		}
 }
-
+#endif
 
 /////////////////////////////////////////////////////////
 

@@ -3,7 +3,9 @@
 
 /*自助收费和人工收费工控机对于车控器来说是一样的*/
 #define PC1_UART			UART1_COM	//定义与第一个PC通信的为哪个串口?
+#if (UART_NUM == 2)
 #define PC2_UART			UART2_COM	//定义与第二个PC通信的为哪个串口?
+#endif
 /*定义成超出串口的值,表示不需要这个功能*/
 #define FEE_UART			UART_NUM			//定义与费显和声音的串口
 #define TRANS_UART		UART_NUM			//定义透传的串口

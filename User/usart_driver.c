@@ -13,7 +13,7 @@ UART_BUF	 UARTBuf[UART_NUM];
 
 /* 由于printf有缺陷, 这个变量没有实质使用*/
 USART_LIST uart_sel = PC1_UART; // 为了重定向到3个串口,定义一个选择变量.
-const USART_LIST pc_com[PC_USART_NUM] = {PC1_UART,PC2_UART};
+const USART_LIST pc_com[PC_USART_NUM] = {PC1_UART};
 
 /******************************************************************************
  * 函数名:	UARTProcessTickEvents 
@@ -67,10 +67,12 @@ int fputc(int ch, FILE *f)
 	{
 		pusart = USART1;
 	}
+#if (UART_NUM == 2)
 	else if (uart_sel == UART2_COM)
 	{
 		pusart = USART2;
 	}
+#endif
 	else
 	{
 		pusart = USART1;
@@ -107,10 +109,12 @@ int fgetc(FILE *f)
 	{
 		pusart = USART1;
 	}
+#if (UART_NUM == 2)
 	else if (uart_sel == UART2_COM)
 	{
 		pusart = USART2;
 	}
+#endif
 	else
 	{
 		pusart = USART1;
@@ -122,7 +126,7 @@ int fgetc(FILE *f)
 	return (int)USART_ReceiveData(pusart);
 }
 
-
+#ifdef SPEAKER_ENABLE
 /******************************************************************************
  * 函数名:	UART_fputc 
  * 描述: 
@@ -165,5 +169,6 @@ int  UART_fgetc(void)
 
 	return (int)USART_ReceiveData(SHELL_USART);
 }
+#endif
 
 /*********************************************END OF FILE**********************/

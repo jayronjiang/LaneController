@@ -5,7 +5,7 @@
 typedef enum 
 {	
 	UART1_COM = 0,
-	UART2_COM,
+	//UART2_COM,
 	//UART3_COM,
 
 	UART_NUM
@@ -15,7 +15,7 @@ typedef enum
 #define UART_RXBUF_SIZE		64		//接收缓冲的大小
 #define UART_TXBUF_SIZE		64		//发送缓冲的大小
 
-#define PC_USART_NUM		2		// 可以连接几个工控机?
+#define PC_USART_NUM		1		// 可以连接几个工控机?
 
 typedef struct 
 {
